@@ -30,7 +30,7 @@ function generatePrep(e) {
     // Get selected use cases
     const usecases = Array.from(document.querySelectorAll('input[name="usecase"]:checked')).map(cb => cb.value);
     // Get cloud environments
-    const clouds = Array.from(document.querySelectorAll('.checkbox-group input[type="checkbox"]:checked'))
+    const clouds = Array.from(document.querySelectorAll('.chip-group input[type="checkbox"]:checked'))
         .filter(cb => ['aws','azure','gcp','private','hybrid'].includes(cb.value))
         .map(cb => cb.value);
 
