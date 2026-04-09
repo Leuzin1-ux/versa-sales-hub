@@ -1,6 +1,36 @@
 // ===================================================================
-// VERSA SALES HUB — APPLICATION ENGINE
+// VERSA SALES HUB — APPLICATION ENGINE v1.1
 // ===================================================================
+
+let sectionCounter = 0;
+let lastBattlecard = 'zscaler';
+
+// ===================== UTILITY: Copy to Clipboard =====================
+function copyToClipboard(btn) {
+    const card = btn.closest('.copyable');
+    if (!card) return;
+    const text = card.querySelector('.copy-content')?.innerText || card.innerText;
+    navigator.clipboard.writeText(text.trim()).then(() => {
+        btn.innerHTML = '<i class="fas fa-check"></i>';
+        btn.classList.add('copied');
+        setTimeout(() => {
+            btn.innerHTML = '<i class="fas fa-copy"></i>';
+            btn.classList.remove('copied');
+        }, 1500);
+    });
+}
+
+// Wrap content with a copy button
+function withCopy(html, extraClass = '') {
+    return `<div class="copyable ${extraClass}">${html}<button class="copy-btn" onclick="copyToClipboard(this)" title="Copy to clipboard"><i class="fas fa-copy"></i></button><div class="copy-content" style="display:none">${html}</div></div>`;
+}
+
+// ===================== ESCAPE HTML (XSS prevention) =====================
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
 
 // ===================== TAB SWITCHING =====================
 function switchTab(tab) {
@@ -10,8 +40,12 @@ function switchTab(tab) {
     document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
 
     // Initialize tab content if needed
-    if (tab === 'battlecards') showBattlecard('zscaler');
+    if (tab === 'battlecards') showBattlecard(lastBattlecard);
     if (tab === 'meddic') renderMEDDIC();
+    if (tab === 'live') document.getElementById('liveSearch')?.focus();
+
+    // Update URL hash for deep linking
+    history.replaceState(null, '', '#' + tab);
 }
 
 // ===================== PRE-CALL PREP GENERATOR =====================
@@ -35,6 +69,13 @@ function generatePrep(e) {
         .map(cb => cb.value);
 
     let html = '';
+
+    // Toolbar: Collapse All / Expand All + Print
+    html += `<div class="output-toolbar">
+        <button class="toolbar-btn" onclick="toggleAllSections(false)"><i class="fas fa-compress-alt"></i> Collapse All</button>
+        <button class="toolbar-btn" onclick="toggleAllSections(true)"><i class="fas fa-expand-alt"></i> Expand All</button>
+        <button class="toolbar-btn" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
+    </div>`;
 
     // ===== EXECUTIVE SUMMARY =====
     html += buildSection('Executive Summary', 'fa-file-lines', null, buildExecutiveSummary(companyName, industry, numSites, remoteUsers, vendors, usecases, personaTitle));
@@ -75,10 +116,23 @@ function generatePrep(e) {
     const outputContent = document.getElementById('output-content');
     outputContent.style.display = 'block';
     outputContent.innerHTML = html;
+
+    // Scroll output into view (critical on mobile)
+    outputContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function clearForm() {
+    document.getElementById('prep-form').reset();
+    document.querySelectorAll('.chip:has(input:checked), .vendor-card:has(input:checked)').forEach(el => {
+        el.querySelector('input').checked = false;
+    });
+    document.getElementById('output-empty').style.display = '';
+    document.getElementById('output-content').style.display = 'none';
+    document.getElementById('output-content').innerHTML = '';
 }
 
 function buildExecutiveSummary(company, industry, sites, remote, vendors, usecases, persona) {
-    let summary = `<div class="pitch-card"><strong>Pre-Call Briefing for ${company}</strong><br><br>`;
+    let summary = `<div class="pitch-card"><strong>Pre-Call Briefing for ${escapeHtml(company)}</strong><br><br>`;
 
     if (industry && INDUSTRIES[industry]) summary += `<strong>Industry:</strong> ${INDUSTRIES[industry].name}<br>`;
     if (sites) summary += `<strong>Sites:</strong> ${sites}<br>`;
@@ -130,7 +184,7 @@ function buildExecutiveSummary(company, industry, sites, remote, vendors, usecas
 function buildPersonaBriefing(personaKey) {
     const p = PERSONAS[personaKey];
     let html = `<div class="pitch-card"><strong>You're meeting with a ${p.title}</strong> — here's how to approach this conversation:</div>`;
-    html += `<div class="versa-strength">${p.talkTrack}</div>`;
+    html += withCopy(`<div class="versa-strength">${p.talkTrack}</div>`);
 
     html += `<div class="question-category">What ${p.title}s Care About</div><ul>`;
     p.cares.forEach(c => html += `<li><strong>${c}</strong></li>`);
@@ -149,21 +203,43 @@ function buildMEDDICQuestions(industry, vendors, usecases, persona) {
 
     sections.forEach(key => {
         const m = MEDDIC[key];
+        const allQuestions = m.questions;
+        const showInitial = 5;
+        const sectionId = 'meddic-qs-' + key;
+
         html += `<div class="question-category"><span class="tag tag-blue">${m.letter}</span> ${m.name}</div>`;
         html += `<ul>`;
 
-        // Pick most relevant questions (first 4-5)
-        const questions = m.questions.slice(0, 5);
-        questions.forEach(q => html += `<li>${q}</li>`);
+        allQuestions.slice(0, showInitial).forEach(q => html += `<li>${q}</li>`);
+
+        if (allQuestions.length > showInitial) {
+            html += `</ul><div id="${sectionId}" class="more-questions" style="display:none;"><ul>`;
+            allQuestions.slice(showInitial).forEach(q => html += `<li>${q}</li>`);
+            html += `</ul></div>`;
+            html += `<button class="show-more-btn" onclick="toggleMore('${sectionId}', this)">Show ${allQuestions.length - showInitial} more questions <i class="fas fa-chevron-down"></i></button>`;
+        } else {
+            html += `</ul>`;
+        }
 
         // Add contextual tip
         if (m.tips.length > 0) {
-            html += `<li><span class="tag tag-yellow">TIP</span> ${m.tips[0]}</li>`;
+            html += `<div class="tip-inline"><span class="tag tag-yellow">TIP</span> ${m.tips[0]}</div>`;
         }
-        html += `</ul>`;
     });
 
     return html;
+}
+
+function toggleMore(id, btn) {
+    const el = document.getElementById(id);
+    if (el.style.display === 'none') {
+        el.style.display = 'block';
+        btn.innerHTML = 'Show fewer <i class="fas fa-chevron-up"></i>';
+    } else {
+        el.style.display = 'none';
+        const count = el.querySelectorAll('li').length;
+        btn.innerHTML = `Show ${count} more questions <i class="fas fa-chevron-down"></i>`;
+    }
 }
 
 function buildIndustryIntel(industryKey) {
@@ -171,7 +247,7 @@ function buildIndustryIntel(industryKey) {
     let html = '';
 
     html += `<div class="question-category">Compliance Requirements</div>`;
-    html += `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">`;
+    html += `<div class="flex-wrap-gap">`;
     ind.compliance.forEach(c => html += `<span class="stat-box">${c}</span>`);
     html += `</div>`;
 
@@ -184,11 +260,11 @@ function buildIndustryIntel(industryKey) {
     html += `</ul>`;
 
     html += `<div class="question-category">Versa Pitch for ${ind.name}</div>`;
-    html += `<div class="versa-strength">${ind.versaPitch}</div>`;
+    html += withCopy(`<div class="versa-strength">${ind.versaPitch}</div>`);
 
     if (ind.customerProof.length > 0) {
         html += `<div class="question-category">Customer Proof Points</div>`;
-        html += `<div style="display:flex;flex-wrap:wrap;gap:6px;">`;
+        html += `<div class="flex-wrap-gap">`;
         ind.customerProof.forEach(c => html += `<span class="stat-box"><i class="fas fa-check-circle" style="color:var(--versa-green)"></i> ${c}</span>`);
         html += `</div>`;
     }
@@ -207,8 +283,8 @@ function buildUseCaseIntel(usecases) {
         uc.discoveryQuestions.slice(0, 6).forEach(q => html += `<li>${q}</li>`);
         html += `</ul>`;
 
-        html += `<div style="margin-top:8px;margin-bottom:16px;">`;
-        uc.versaValue.forEach(v => html += `<div class="versa-strength">${v}</div>`);
+        html += `<div class="uc-value-wrap">`;
+        uc.versaValue.forEach(v => html += withCopy(`<div class="versa-strength">${v}</div>`));
         html += `</div>`;
     });
     return html;
@@ -223,25 +299,25 @@ function buildCompetitiveIntel(vendors) {
         html += `<div class="question-category"><span class="tag tag-red">VS</span> ${comp.name}</div>`;
         html += `<div class="competitor-weakness"><strong>Summary:</strong> ${comp.summary}</div>`;
 
-        html += `<div style="margin:10px 0 6px;font-size:12px;font-weight:600;color:var(--versa-red);">Key Weaknesses to Exploit</div>`;
+        html += `<div class="sub-heading red">Key Weaknesses to Exploit</div>`;
         html += `<ul>`;
         comp.weaknesses.slice(0, 6).forEach(w => html += `<li><span class="tag tag-red">WEAK</span> ${w}</li>`);
         html += `</ul>`;
 
-        html += `<div style="margin:10px 0 6px;font-size:12px;font-weight:600;color:var(--versa-green);">Versa Advantages</div>`;
+        html += `<div class="sub-heading green">Versa Advantages</div>`;
         html += `<ul>`;
         comp.versaAdvantages.slice(0, 5).forEach(a => html += `<li><span class="tag tag-green">VERSA</span> ${a}</li>`);
         html += `</ul>`;
 
-        html += `<div style="margin:10px 0 6px;font-size:12px;font-weight:600;color:var(--versa-light-blue);">Kill Questions (ask these on the call)</div>`;
+        html += `<div class="sub-heading primary">Kill Questions (ask these on the call)</div>`;
         html += `<ul>`;
         comp.killQuestions.slice(0, 5).forEach(q => html += `<li>${q}</li>`);
         html += `</ul>`;
 
         // Security stats comparison
         if (comp.securityStats) {
-            html += `<div style="display:flex;gap:10px;margin:10px 0;">`;
-            html += `<span class="stat-box"><span class="stat-value">${comp.securityStats.versa.effectiveness}</span> Versa</span>`;
+            html += `<div class="flex-wrap-gap" style="margin:10px 0;">`;
+            html += `<span class="stat-box"><span class="stat-value">${comp.securityStats.versa.effectiveness}</span> Versa ${comp.securityStats.versa.testName || ''}</span>`;
             if (comp.securityStats.competitor.effectiveness !== 'Not independently tested' && comp.securityStats.competitor.effectiveness !== 'Declined testing') {
                 html += `<span class="stat-box"><span class="stat-vs">${comp.securityStats.competitor.effectiveness}</span> ${comp.name}</span>`;
             } else {
@@ -252,7 +328,7 @@ function buildCompetitiveIntel(vendors) {
 
         // Analyst quotes
         if (comp.analystQuotes && comp.analystQuotes.length > 0) {
-            html += `<div style="margin:10px 0 6px;font-size:12px;font-weight:600;color:var(--versa-yellow);">Analyst Ammunition</div>`;
+            html += `<div class="sub-heading yellow">Analyst Ammunition</div>`;
             comp.analystQuotes.forEach(aq => {
                 html += `<div class="pitch-card"><em>"${aq.quote}"</em><br><small>— ${aq.source}</small></div>`;
             });
@@ -286,19 +362,20 @@ function buildConsolidationPlay() {
 function buildVersaPitch(industry, usecases, vendors, sites, remote) {
     let html = '';
 
-    html += `<div class="pitch-card">`;
-    html += `<strong>Versa's Core Value Proposition</strong><br><br>`;
-    html += `Versa delivers the industry's only <strong>true Unified SASE platform</strong> — SD-WAN, SSE, NGFW, and SD-LAN running on a single operating system (VOS) with a single management console. This means:<br><br>`;
-    html += `<strong>1. Fewer Vendors</strong> — Replace 4-8 networking and security vendors with one platform<br>`;
-    html += `<strong>2. Better Security</strong> — 99.90% security effectiveness, independently validated by CyberRatings.org<br>`;
-    html += `<strong>3. Lower TCO</strong> — Dell achieved 130% ROI; Adobe saved $500K+<br>`;
-    html += `<strong>4. Simpler Operations</strong> — One console, one policy, one team<br>`;
-    html += `<strong>5. Deployment Flexibility</strong> — On-premises, cloud, hybrid, or sovereign`;
-    html += `</div>`;
+    html += withCopy(`<div class="pitch-card">
+        <strong>Versa's Core Value Proposition</strong><br><br>
+        Versa delivers the industry's only <strong>true Unified SASE platform</strong> — SD-WAN, SSE, NGFW, and SD-LAN running on a single operating system (VOS) with a single management console. This means:<br><br>
+        <strong>1. Fewer Vendors</strong> — Replace 4-8 networking and security vendors with one platform<br>
+        <strong>2. Better Security</strong> — #1 in CyberRatings.org Enterprise Firewall test, independently validated<br>
+        <strong>3. Lower TCO</strong> — Dell achieved 130% ROI; Adobe saved $500K+<br>
+        <strong>4. Simpler Operations</strong> — One console, one policy, one team<br>
+        <strong>5. Deployment Flexibility</strong> — On-premises, cloud, hybrid, or sovereign
+    </div>`);
 
     html += `<div class="question-category">Third-Party Validation</div>`;
-    html += `<div style="display:flex;flex-wrap:wrap;gap:8px;">`;
-    html += `<span class="stat-box"><span class="stat-value">99.90%</span> Security Effectiveness (CyberRatings)</span>`;
+    html += `<div class="flex-wrap-gap">`;
+    html += `<span class="stat-box"><span class="stat-value">99.98%</span> Enterprise Firewall (CyberRatings)</span>`;
+    html += `<span class="stat-box"><span class="stat-value">99.90%</span> NGFW Effectiveness (CyberRatings)</span>`;
     html += `<span class="stat-box"><span class="stat-value">5 Years</span> Gartner SD-WAN MQ Leader</span>`;
     html += `<span class="stat-box"><span class="stat-value">AAA</span> CyberRatings SSE Rating</span>`;
     html += `<span class="stat-box"><span class="stat-value">AAA</span> CyberRatings ZTNA Rating</span>`;
@@ -307,12 +384,24 @@ function buildVersaPitch(industry, usecases, vendors, sites, remote) {
     html += `<span class="stat-box"><span class="stat-value">5/5</span> Forrester Support Rating</span>`;
     html += `</div>`;
 
+    // Overcoming Objections About Versa
+    if (typeof VERSA_OBJECTIONS !== 'undefined') {
+        html += `<div class="question-category">Overcoming Objections About Versa</div>`;
+        Object.entries(VERSA_OBJECTIONS).forEach(([objection, response]) => {
+            html += withCopy(`<div class="live-card">
+                <h4><span class="tag tag-red">OBJECTION</span> "${objection}"</h4>
+                <p><span class="tag tag-green">RESPONSE</span> ${response}</p>
+            </div>`);
+        });
+    }
+
     return html;
 }
 
 // ===================== SECTION BUILDER HELPER =====================
 function buildSection(title, icon, meddicLetter, body) {
-    const id = 'section-' + Math.random().toString(36).substr(2, 9);
+    sectionCounter++;
+    const id = 'section-' + sectionCounter;
     return `
     <div class="output-section" id="${id}">
         <div class="output-section-header" onclick="toggleSection('${id}')">
@@ -327,6 +416,16 @@ function buildSection(title, icon, meddicLetter, body) {
 
 function toggleSection(id) {
     document.getElementById(id).classList.toggle('collapsed');
+}
+
+function toggleAllSections(expand) {
+    document.querySelectorAll('.output-section').forEach(sec => {
+        if (expand) {
+            sec.classList.remove('collapsed');
+        } else {
+            sec.classList.add('collapsed');
+        }
+    });
 }
 
 // ===================== LIVE CALL MODE =====================
@@ -345,17 +444,25 @@ function quickSearch(term) {
 function performSearch(query) {
     const results = document.getElementById('liveResults');
     if (!query || query.length < 2) {
-        results.innerHTML = `<div class="live-empty"><i class="fas fa-bolt"></i><h3>Quick Intel at Your Fingertips</h3><p>Start typing or click a chip above to instantly pull up pain-point questions, objection handling, and competitive positioning.</p></div>`;
+        results.innerHTML = `<div class="live-empty">
+            <div class="empty-icon-ring"><i class="fas fa-bolt"></i></div>
+            <h3>Quick Intel at Your Fingertips</h3>
+            <p>Start typing or click a chip above to instantly pull up pain-point questions, objection handling, and competitive positioning.</p>
+        </div>`;
         return;
     }
 
     const q = query.toLowerCase().trim();
     let html = '';
     let found = false;
+    const rendered = new Set(); // Prevent duplicate results
 
-    // Search through the index
+    // Search through the index — show ALL matches, not just the first
     for (const [key, entry] of Object.entries(SEARCH_INDEX)) {
         if (q.includes(key) || key.includes(q)) {
+            const entryId = entry.type + '-' + (entry.key || entry.title);
+            if (rendered.has(entryId)) continue;
+            rendered.add(entryId);
             found = true;
 
             if (entry.type === 'vendor') {
@@ -367,7 +474,6 @@ function performSearch(query) {
             } else if (entry.type === 'topic') {
                 html += renderTopicLiveResult(entry);
             }
-            break; // Show first match
         }
     }
 
@@ -376,7 +482,12 @@ function performSearch(query) {
         html += fuzzySearch(q);
     }
 
-    results.innerHTML = html || `<div class="live-empty"><i class="fas fa-search"></i><h3>No results for "${query}"</h3><p>Try: vendor name, use case (SD-WAN, SASE, VPN), industry, or security topic (CASB, DLP, IPS)</p></div>`;
+    const safeQuery = escapeHtml(query);
+    results.innerHTML = html || `<div class="live-empty">
+        <div class="empty-icon-ring"><i class="fas fa-search"></i></div>
+        <h3>No results for "${safeQuery}"</h3>
+        <p>Try: vendor name, use case (SD-WAN, SASE, VPN), industry, or security topic (CASB, DLP, IPS)</p>
+    </div>`;
 }
 
 function renderVendorLiveResult(vendorKey) {
@@ -391,17 +502,17 @@ function renderVendorLiveResult(vendorKey) {
 
     if (comp.securityStats) {
         html += `<div class="live-card"><h4>Security Effectiveness Comparison</h4>`;
-        html += `<div style="display:flex;gap:10px;flex-wrap:wrap;">`;
-        html += `<span class="stat-box"><span class="stat-value">${comp.securityStats.versa.effectiveness}</span> Versa</span>`;
+        html += `<div class="flex-wrap-gap">`;
+        html += `<span class="stat-box"><span class="stat-value">${comp.securityStats.versa.effectiveness}</span> Versa ${comp.securityStats.versa.testName || ''}</span>`;
         html += `<span class="stat-box"><span class="stat-vs">${comp.securityStats.competitor.effectiveness}</span> ${comp.name}</span>`;
         html += `</div></div>`;
     }
     html += `</div>`;
 
-    // Kill Questions
+    // Kill Questions — with copy buttons
     html += `<div class="live-result-group"><h3><i class="fas fa-crosshairs"></i> Kill Questions — Ask These NOW</h3>`;
     comp.killQuestions.forEach(q => {
-        html += `<div class="live-card">${q}</div>`;
+        html += withCopy(`<div class="live-card">${q}</div>`);
     });
     html += `</div>`;
 
@@ -411,13 +522,13 @@ function renderVendorLiveResult(vendorKey) {
     comp.weaknesses.slice(0, 7).forEach(w => html += `<li>${w}</li>`);
     html += `</ul></div></div>`;
 
-    // Objection Handling
+    // Objection Handling — with copy buttons
     html += `<div class="live-result-group"><h3><i class="fas fa-shield"></i> Objection Handling</h3>`;
     Object.entries(comp.objectionHandling).forEach(([objection, response]) => {
-        html += `<div class="live-card">`;
-        html += `<h4><span class="tag tag-red">OBJECTION</span> "${objection}"</h4>`;
-        html += `<p><span class="tag tag-green">RESPONSE</span> ${response}</p>`;
-        html += `</div>`;
+        html += withCopy(`<div class="live-card">
+            <h4><span class="tag tag-red">OBJECTION</span> "${objection}"</h4>
+            <p><span class="tag tag-green">RESPONSE</span> ${response}</p>
+        </div>`);
     });
     html += `</div>`;
 
@@ -425,7 +536,7 @@ function renderVendorLiveResult(vendorKey) {
     if (comp.analystQuotes && comp.analystQuotes.length > 0) {
         html += `<div class="live-result-group"><h3><i class="fas fa-quote-left"></i> Analyst Ammunition</h3>`;
         comp.analystQuotes.forEach(aq => {
-            html += `<div class="live-card"><em>"${aq.quote}"</em><br><small style="color:var(--versa-yellow);">— ${aq.source}</small></div>`;
+            html += withCopy(`<div class="live-card"><em>"${aq.quote}"</em><br><small class="analyst-source">— ${aq.source}</small></div>`);
         });
         html += `</div>`;
     }
@@ -467,7 +578,7 @@ function renderIndustryLiveResult(indKey) {
     let html = `<div class="live-result-group"><h3><i class="fas ${ind.icon}"></i> ${ind.name}</h3>`;
 
     html += `<div class="live-card"><h4>Compliance Requirements</h4>`;
-    html += `<div style="display:flex;flex-wrap:wrap;gap:6px;">`;
+    html += `<div class="flex-wrap-gap">`;
     ind.compliance.forEach(c => html += `<span class="stat-box">${c}</span>`);
     html += `</div></div>`;
 
@@ -479,7 +590,7 @@ function renderIndustryLiveResult(indKey) {
     ind.discoveryQuestions.forEach(q => html += `<li>${q}</li>`);
     html += `</ul></div>`;
 
-    html += `<div class="live-card"><h4>Versa Pitch</h4><p>${ind.versaPitch}</p></div>`;
+    html += withCopy(`<div class="live-card"><h4>Versa Pitch</h4><p>${ind.versaPitch}</p></div>`);
 
     html += `</div>`;
     return html;
@@ -487,7 +598,7 @@ function renderIndustryLiveResult(indKey) {
 
 function renderTopicLiveResult(entry) {
     let html = `<div class="live-result-group"><h3><i class="fas fa-info-circle"></i> ${entry.title}</h3>`;
-    html += `<div class="live-card"><p style="white-space:pre-line;">${entry.content}</p></div>`;
+    html += withCopy(`<div class="live-card"><p style="white-space:pre-line;">${entry.content}</p></div>`);
     html += `</div>`;
     return html;
 }
@@ -508,6 +619,12 @@ function fuzzySearch(query) {
                 results.push({ type: 'question', vendor: comp.name, text: q });
             }
         });
+        // Also search objection handling
+        Object.entries(comp.objectionHandling).forEach(([obj, resp]) => {
+            if (words.some(word => obj.toLowerCase().includes(word) || resp.toLowerCase().includes(word))) {
+                results.push({ type: 'objection', vendor: comp.name, objection: obj, response: resp });
+            }
+        });
     });
 
     // Search use case questions
@@ -519,19 +636,32 @@ function fuzzySearch(query) {
         });
     });
 
+    // Search Versa objections
+    if (typeof VERSA_OBJECTIONS !== 'undefined') {
+        Object.entries(VERSA_OBJECTIONS).forEach(([obj, resp]) => {
+            if (words.some(word => obj.toLowerCase().includes(word) || resp.toLowerCase().includes(word))) {
+                results.push({ type: 'versa-objection', objection: obj, response: resp });
+            }
+        });
+    }
+
     if (results.length === 0) return '';
 
-    let html = `<div class="live-result-group"><h3><i class="fas fa-search"></i> Search Results for "${query}"</h3>`;
-    results.slice(0, 15).forEach(r => {
-        html += `<div class="live-card">`;
+    const safeQuery = escapeHtml(query);
+    let html = `<div class="live-result-group"><h3><i class="fas fa-search"></i> Search Results for "${safeQuery}"</h3>`;
+    results.slice(0, 20).forEach(r => {
         if (r.type === 'weakness') {
-            html += `<span class="tag tag-red">${r.vendor} Weakness</span> ${r.text}`;
+            html += `<div class="live-card"><span class="tag tag-red">${r.vendor} Weakness</span> ${r.text}</div>`;
         } else if (r.type === 'question') {
-            html += `<span class="tag tag-blue">${r.vendor} Kill Question</span> ${r.text}`;
+            html += withCopy(`<div class="live-card"><span class="tag tag-blue">${r.vendor} Kill Question</span> ${r.text}</div>`);
+        } else if (r.type === 'objection' || r.type === 'versa-objection') {
+            html += withCopy(`<div class="live-card">
+                <h4><span class="tag tag-red">OBJECTION</span> "${r.objection}"</h4>
+                <p><span class="tag tag-green">RESPONSE</span> ${r.response}</p>
+            </div>`);
         } else {
-            html += `<span class="tag tag-green">${r.usecase}</span> ${r.text}`;
+            html += `<div class="live-card"><span class="tag tag-green">${r.usecase}</span> ${r.text}</div>`;
         }
-        html += `</div>`;
     });
     html += `</div>`;
     return html;
@@ -539,6 +669,8 @@ function fuzzySearch(query) {
 
 // ===================== BATTLECARDS TAB =====================
 function showBattlecard(vendorKey) {
+    lastBattlecard = vendorKey;
+
     // Update active state
     document.querySelectorAll('.bc-card').forEach(c => c.classList.remove('active'));
     const clickedCard = document.querySelector(`.bc-card[onclick*="${vendorKey}"]`);
@@ -564,11 +696,13 @@ function showBattlecard(vendorKey) {
     html += `</table></div>`;
 
     // Security Stats
-    html += `<div class="bc-section"><h3><i class="fas fa-chart-bar"></i> Security Effectiveness</h3>`;
-    html += `<div style="display:flex;gap:12px;flex-wrap:wrap;">`;
-    html += `<span class="stat-box"><span class="stat-value">${comp.securityStats.versa.effectiveness}</span> Versa</span>`;
-    html += `<span class="stat-box"><span class="stat-vs">${comp.securityStats.competitor.effectiveness}</span> ${comp.name}</span>`;
-    html += `</div></div>`;
+    if (comp.securityStats) {
+        html += `<div class="bc-section"><h3><i class="fas fa-chart-bar"></i> Security Effectiveness</h3>`;
+        html += `<div class="flex-wrap-gap">`;
+        html += `<span class="stat-box"><span class="stat-value">${comp.securityStats.versa.effectiveness}</span> Versa ${comp.securityStats.versa.testName || ''}</span>`;
+        html += `<span class="stat-box"><span class="stat-vs">${comp.securityStats.competitor.effectiveness}</span> ${comp.name}</span>`;
+        html += `</div></div>`;
+    }
 
     // Weaknesses
     html += `<div class="bc-section"><h3><i class="fas fa-bullseye"></i> ${comp.name} Weaknesses</h3>`;
@@ -580,27 +714,27 @@ function showBattlecard(vendorKey) {
     comp.versaAdvantages.forEach(a => html += `<div class="versa-strength">${a}</div>`);
     html += `</div>`;
 
-    // Kill Questions
+    // Kill Questions — with copy
     html += `<div class="bc-section"><h3><i class="fas fa-crosshairs"></i> Kill Questions</h3>`;
     comp.killQuestions.forEach(q => {
-        html += `<div class="live-card">${q}</div>`;
+        html += withCopy(`<div class="live-card">${q}</div>`);
     });
     html += `</div>`;
 
-    // Objection Handling
+    // Objection Handling — with copy
     html += `<div class="bc-section"><h3><i class="fas fa-comments"></i> Objection Handling</h3>`;
     Object.entries(comp.objectionHandling).forEach(([objection, response]) => {
-        html += `<div class="live-card">`;
-        html += `<h4><span class="tag tag-red">OBJECTION</span> "${objection}"</h4>`;
-        html += `<p><span class="tag tag-green">RESPONSE</span> ${response}</p>`;
-        html += `</div>`;
+        html += withCopy(`<div class="live-card">
+            <h4><span class="tag tag-red">OBJECTION</span> "${objection}"</h4>
+            <p><span class="tag tag-green">RESPONSE</span> ${response}</p>
+        </div>`);
     });
     html += `</div>`;
 
     // Analyst Quotes
     html += `<div class="bc-section"><h3><i class="fas fa-quote-left"></i> Analyst Ammunition</h3>`;
     comp.analystQuotes.forEach(aq => {
-        html += `<div class="pitch-card"><em>"${aq.quote}"</em><br><small style="color:var(--versa-yellow);">— ${aq.source}</small></div>`;
+        html += withCopy(`<div class="pitch-card"><em>"${aq.quote}"</em><br><small class="analyst-source">— ${aq.source}</small></div>`);
     });
     html += `</div>`;
 
@@ -628,10 +762,10 @@ function renderMEDDIC() {
             </div>
             <div class="meddic-card-body">
                 <h4>Why It Matters</h4>
-                <p style="font-size:13px;color:var(--text-secondary);line-height:1.5;">${m.whyItMatters}</p>
+                <p>${m.whyItMatters}</p>
 
                 <h4>Versa Context</h4>
-                <p style="font-size:13px;color:var(--text-secondary);line-height:1.5;">${m.versaContext}</p>
+                <p>${m.versaContext}</p>
 
                 <h4>Discovery Questions</h4>
                 <ul>
@@ -649,8 +783,34 @@ function renderMEDDIC() {
     grid.innerHTML = html;
 }
 
+// ===================== KEYBOARD SHORTCUTS =====================
+document.addEventListener('keydown', (e) => {
+    // Cmd/Ctrl + K = Jump to Live Search
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        switchTab('live');
+        setTimeout(() => document.getElementById('liveSearch')?.focus(), 50);
+    }
+
+    // Cmd/Ctrl + 1-4 = Tab switching
+    if ((e.metaKey || e.ctrlKey) && ['1','2','3','4'].includes(e.key)) {
+        e.preventDefault();
+        const tabs = ['prep', 'live', 'battlecards', 'meddic'];
+        switchTab(tabs[parseInt(e.key) - 1]);
+    }
+
+    // Escape = Clear live search
+    if (e.key === 'Escape' && document.activeElement?.id === 'liveSearch') {
+        document.getElementById('liveSearch').value = '';
+        performSearch('');
+    }
+});
+
 // ===================== INITIALIZE =====================
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize battlecards tab content
-    // Will be loaded when tab is clicked
+    // Handle deep linking from URL hash
+    const hash = window.location.hash.replace('#', '');
+    if (['prep', 'live', 'battlecards', 'meddic'].includes(hash)) {
+        switchTab(hash);
+    }
 });

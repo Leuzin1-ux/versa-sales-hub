@@ -53,7 +53,7 @@ const COMPETITORS = {
             "Our security team trusts Zscaler": "We respect Zscaler's SSE. But ask your security team: who handles on-prem firewall? Who handles SD-WAN? Who handles LAN security? That's 3+ vendors Zscaler can't replace. Versa is one platform for all of it."
         },
         securityStats: {
-            versa: { effectiveness: "99.90%", rating: "Recommended" },
+            versa: { effectiveness: "99.90%", rating: "Recommended", testName: "(NGFW)" },
             competitor: { effectiveness: "Not independently tested", rating: "N/A" }
         },
         analystQuotes: [
@@ -119,7 +119,7 @@ const COMPETITORS = {
             "We're already in a Palo Alto renewal": "Perfect timing. Before you renew, let us show you a side-by-side TCO comparison. Most customers find they're paying for 3-4 separate Palo Alto products when Versa consolidates it into one platform at lower cost."
         },
         securityStats: {
-            versa: { effectiveness: "99.98%", rating: "Recommended" },
+            versa: { effectiveness: "99.98%", rating: "Recommended", testName: "(Enterprise FW)" },
             competitor: { effectiveness: "79.24%", rating: "Lower effectiveness" }
         },
         analystQuotes: [
@@ -188,7 +188,7 @@ const COMPETITORS = {
             "Our network team only knows Cisco": "Versa's VOS runs full enterprise routing — BGP, OSPF, IS-IS, VRFs, multicast. Your network engineers will find it familiar. Plus, our single console is easier to learn than juggling Viptela + Meraki + Umbrella + ISE."
         },
         securityStats: {
-            versa: { effectiveness: "99.90%", sse: "Leader", firewall: "99.43%", exploitEvasion: "100%", malwareBlock: "99.01%", falsePositive: "99.63%" },
+            versa: { effectiveness: "99.90%", testName: "(NGFW)", sse: "Leader", firewall: "99.43%", exploitEvasion: "100%", malwareBlock: "99.01%", falsePositive: "99.63%" },
             competitor: { effectiveness: "53.50%", sse: "12.44% (Caution)", firewall: "57.34%", exploitEvasion: "40%", malwareBlock: "77.49%", falsePositive: "79.94%" }
         },
         analystQuotes: [
@@ -259,7 +259,7 @@ const COMPETITORS = {
             "Fortinet has a bigger installed base for SD-WAN": "Market share doesn't equal capability. Gartner's Critical Capabilities for SASE 2025 shows Versa as the SD-WAN capability leader. Fortinet added SD-WAN to a firewall — Versa built SD-WAN as its core architecture."
         },
         securityStats: {
-            versa: { effectiveness: "99.98%", exploitEvasion: "99.43%" },
+            versa: { effectiveness: "99.98%", testName: "(Enterprise FW)", exploitEvasion: "99.43%" },
             competitor: { effectiveness: "79.24%", exploitEvasion: "53.50%" }
         },
         analystQuotes: [
@@ -329,7 +329,7 @@ const COMPETITORS = {
             "We like Cato's per-user pricing": "Pricing models matter, but so does what you're getting. Cato's bandwidth-allocation licensing creates overprovisioning risk. Versa offers both bandwidth and consumption-based options. Let's compare actual cost for your specific user count and traffic patterns."
         },
         securityStats: {
-            versa: { effectiveness: "99.98%", rating: "Recommended" },
+            versa: { effectiveness: "99.98%", testName: "(Enterprise FW)", rating: "Recommended" },
             competitor: { effectiveness: "Not independently tested", rating: "N/A" }
         },
         analystQuotes: [
@@ -397,7 +397,7 @@ const COMPETITORS = {
             "We don't need SD-WAN yet": "You may not need it today, but your MPLS contracts will expire, your branches will grow, and you'll need WAN transformation. With Versa, you get SSE now AND enterprise SD-WAN when you're ready — same platform, same console, zero migration."
         },
         securityStats: {
-            versa: { effectiveness: "99.98%", rating: "Recommended" },
+            versa: { effectiveness: "99.98%", testName: "(Enterprise FW)", rating: "Recommended" },
             competitor: { effectiveness: "Declined testing", rating: "Unknown" }
         },
         analystQuotes: [
@@ -1631,5 +1631,28 @@ const SEARCH_INDEX = {
     "failover": { type: "topic", title: "SD-WAN Failover & Performance", content: "Versa SD-WAN performance specs:\n\n- Primary-to-secondary failover: under 2 seconds\n- NGFW throughput: 7,626 Mbps (highest rated by CyberRatings)\n- Lowest price per protected Mbps among Tier-1 NGFW vendors\n- Forward Error Correction (FEC) for lossy links\n- Packet cloning/decloning for mission-critical apps\n- MOS score-based traffic engineering for voice/video\n- First-packet traffic steering for known applications\n\nNo competitor matches this combination of performance and cost efficiency." },
     "compliance": { type: "topic", title: "Compliance & Certifications", content: "Versa certifications and compliance support:\n\n- FedRAMP High Ready\n- ISO 27001 and ISO 22301\n- NIAP Common Criteria Certificate\n- MEF 3.0 SASE Certification (AAA Rating)\n- CyberRatings.org: AAA (SSE, ZTNA, SD-WAN), Recommended (NGFW)\n\nRegulatory frameworks supported:\n- PCI-DSS, HIPAA, SOX, GLBA, FFIEC\n- GDPR, NIS2, DORA\n- FedRAMP, FISMA, NIST 800-53/171, CMMC\n- FERPA, CIPA, COPPA\n- NERC CIP, TSA Pipeline Security\n- IEC 62443 (OT/ICS)" },
     "roi": { type: "topic", title: "ROI & Customer Proof Points", content: "Proven customer outcomes:\n\n- Dell: 130% ROI, $1M savings\n- Adobe: $500K+ savings\n- Dorset Council: £1M savings\n- Lintasarta: 2,400 customers via Private SASE\n\nNamed customers: Capital One, Comcast, Visa, DISA, Qatar Airways, BP, Amazon, Virgin Media, Samsung, Verizon, Adobe, Barclays, McLaren, Versace, Adidas, Quest Diagnostics, Ace Hardware, Chobani, Cargill, John Deere, US Bank, Macy's\n\nScale: Thousands of enterprises, 120+ service providers, 7 of top-10 global telcos" },
-    "support": { type: "topic", title: "Versa Support & Training", content: "Support highlights:\n- Rated 5/5 in Forrester SASE Wave (vs. Fortinet 1/5)\n- Versa Academy for training and certification\n- Implementation guides and product documentation\n- 24/7 NOC for cloud-managed deployments\n\nGartner Peer Insights quotes:\n- 'Versa SASE streamlined security, cloud agility, performance, and cost savings' — Banking engineer\n- 'Intuitive UI, scalable architecture, robust security, one-touch deployment' — Energy/utilities manager\n- 'Flexible pricing models and rapid implementation' — IT services professional" }
+    "support": { type: "topic", title: "Versa Support & Training", content: "Support highlights:\n- Rated 5/5 in Forrester SASE Wave (vs. Fortinet 1/5)\n- Versa Academy for training and certification\n- Implementation guides and product documentation\n- 24/7 NOC for cloud-managed deployments\n\nGartner Peer Insights quotes:\n- 'Versa SASE streamlined security, cloud agility, performance, and cost savings' — Banking engineer\n- 'Intuitive UI, scalable architecture, robust security, one-touch deployment' — Energy/utilities manager\n- 'Flexible pricing models and rapid implementation' — IT services professional" },
+    "tco": { type: "topic", title: "Total Cost of Ownership (TCO)", content: "Versa TCO advantages:\n\n1. Consolidation: Replace 4-8 separate vendors (SD-WAN + NGFW + SWG + CASB + ZTNA + DLP) with one unified platform\n2. Operational: Single console = fewer FTEs needed, less training, less context-switching\n3. Hardware: Runs on standard x86 (no proprietary ASICs), supports white-box\n4. Licensing: Transparent per-user or per-site pricing, no hidden add-on costs\n5. Deployment: ZTP reduces branch deployment from weeks to hours\n\nProven: Dell 130% ROI, Adobe $500K+ savings, Dorset Council £1M savings" },
+    "ransomware": { type: "topic", title: "Ransomware Protection", content: "Versa's multi-layer ransomware defense:\n\n1. NGFW with IPS: 99.43% exploit evasion resistance, 100% evasion technique blocking\n2. Inline SSL/TLS inspection at wire speed — no blind spots\n3. Sandboxing & ATP: Multi-stage malware analysis (static + dynamic + AI)\n4. UEBA: Behavioral analytics detect lateral movement and anomalous encryption\n5. DLP: Prevents data exfiltration before ransomware detonation\n6. Micro-segmentation: Limits blast radius across branches and cloud\n7. ZTNA: Eliminates VPN attack surface — #1 ransomware entry point\n\nAll running in single-pass on VOS — no traffic hairpinning between separate security products." },
+    "brand awareness": { type: "topic", title: "Overcoming Versa Brand Objections", content: "Common objections and responses:\n\n'Never heard of Versa':\n→ Versa secures thousands of enterprises including Capital One, Dell, Adobe, Visa, Samsung, Barclays, and 120+ service providers (7 of top 10 global telcos). Brand recognition ≠ best technology.\n\n'Versa is too small':\n→ Versa powers 7 of the world's top 10 telcos and secures critical infrastructure for Fortune 100 companies. Small in marketing spend, massive in actual deployment scale.\n\n'Not enough PoPs':\n→ 100+ global PoPs with full security stack inline. Plus Versa supports Private SASE for customers who need dedicated infrastructure — something cloud-only vendors can't do.\n\n'Not in the Gartner SSE MQ':\n→ Versa IS in 3 Gartner MQs: SASE, SSE, and SD-WAN Leader for 5 consecutive years. CyberRatings independently rated Versa SSE AAA." }
+};
+
+// ===================================================================
+// OVERCOMING OBJECTIONS ABOUT VERSA
+// Common objections AEs face about Versa itself (not competitors)
+// ===================================================================
+const VERSA_OBJECTIONS = {
+    "I've never heard of Versa Networks": "That's common — Versa invests in technology over marketing. But our customer list speaks for itself: Capital One, Dell, Adobe, Visa, Samsung, Barclays, Comcast, Virgin Media, and 120+ service providers including 7 of the top 10 global telcos. These are some of the most demanding networks in the world. We earned their business by outperforming the bigger names in head-to-head evaluations.",
+
+    "Versa is too small / not a big enough company": "We understand the concern. But consider: Versa powers 7 of the world's top 10 telcos and secures critical infrastructure for Fortune 100 enterprises. CyberRatings.org independently validated Versa as #1 in security effectiveness. Gartner has named us an SD-WAN Leader for 5 consecutive years. We're small in marketing spend, but massive in actual deployment scale and engineering depth.",
+
+    "You don't have enough PoPs / global presence": "Versa operates 100+ global PoPs with the full security stack inline at each one. But here's what sets us apart: we also offer Private SASE — dedicated infrastructure for customers who need data sovereignty, compliance isolation, or air-gapped environments. Cloud-only vendors like Zscaler and Cato can't do that. And our SASE Fabric has strategic peering with AWS, Azure, Google Cloud, Salesforce, and Zoom for optimal performance.",
+
+    "Why should I switch from [current vendor]?": "It's not about switching for the sake of it. Ask yourself: How many consoles does your team manage today? How many separate products are you stitching together? What's your actual security effectiveness score? Versa consolidates SD-WAN, SSE, NGFW, ZTNA, CASB, DLP, and SD-LAN into one platform with one console. That means fewer vendors, fewer gaps, fewer FTEs, and independently validated security — 99.98% effectiveness by CyberRatings.",
+
+    "We're already too deep into our current vendor": "We hear that often, and we're not asking you to rip-and-replace overnight. Versa supports coexistence and phased migrations. Many customers start with one use case — like SD-WAN or ZTNA — and expand from there. The unified platform means every module you add reduces complexity rather than adding another product to manage. And Dell, Adobe, and Capital One all made the switch.",
+
+    "Versa isn't in the Gartner Magic Quadrant for SSE": "Actually, Versa IS recognized in Gartner's SSE evaluation. We're also in the Gartner SASE MQ and have been an SD-WAN MQ Leader for 5 consecutive years — longer than any competitor. More importantly, CyberRatings independently rated Versa SSE AAA with 99.96% protection rate. Gartner position is one input; independently tested security effectiveness is another.",
+
+    "Your pricing seems high / Can you match [competitor] pricing?": "Let's look at total cost of ownership, not just license price. Competitors often quote a low base price but require expensive add-ons: Zscaler charges extra for ZPA, ZDX, sandbox, and malware scanning. Palo Alto requires separate SD-WAN licensing. With Versa, you get the full unified SASE stack — one license, one platform. Dell achieved 130% ROI. Let us build a TCO comparison specific to your environment."
 };
