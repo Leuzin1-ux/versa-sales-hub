@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Versa Sales Hub</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2L4 28h8l4-10 4 10h8L16 2z' fill='%2300B4D8'/%3E%3C/svg%3E">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Top Nav -->
+    <nav class="top-nav">
+        <div class="nav-left">
+            <div class="logo">
+                <img src="https://www.versa-networks.com/assets/versa-networks-logo.svg" alt="Versa Networks" onerror="this.onerror=null;this.parentElement.innerHTML='<span class=logo-fallback>▽ VERSA</span>'">
+            </div>
+            <span class="app-title">Sales Hub</span>
+        </div>
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-tab="prep" onclick="switchTab('prep')">
+                <i class="fas fa-clipboard-list"></i> Pre-Call Prep
+            </button>
+            <button class="nav-tab" data-tab="live" onclick="switchTab('live')">
+                <i class="fas fa-bolt"></i> Live Call Mode
+            </button>
+            <button class="nav-tab" data-tab="battlecards" onclick="switchTab('battlecards')">
+                <i class="fas fa-shield-halved"></i> Battlecards
+            </button>
+            <button class="nav-tab" data-tab="meddic" onclick="switchTab('meddic')">
+                <i class="fas fa-bullseye"></i> MEDDIC Guide
+            </button>
+        </div>
+        <div class="nav-right">
+            <span class="version-badge">v1.0</span>
+        </div>
+    </nav>
+
+    <!-- ===================== PRE-CALL PREP TAB ===================== -->
+    <div id="tab-prep" class="tab-content active">
+        <div class="prep-layout">
+            <!-- Input Panel -->
+            <div class="input-panel">
+                <div class="panel-header">
+                    <h2><i class="fas fa-user-tie"></i> Customer Profile</h2>
+                    <p>Enter what you know. Leave blank what you don't — we'll still generate a plan.</p>
+                </div>
+                <form id="prep-form" onsubmit="generatePrep(event)">
+                    <div class="form-section">
+                        <h3><i class="fas fa-building"></i> Company Info</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Company Name</label>
+                                <input type="text" id="companyName" placeholder="e.g., Acme Corp">
+                            </div>
+                            <div class="form-group">
+                                <label>Industry</label>
+                                <select id="industry">
+                                    <option value="">-- Select Industry --</option>
+                                    <option value="financial">Financial Services / Banking</option>
+                                    <option value="healthcare">Healthcare / Pharma</option>
+                                    <option value="retail">Retail / E-Commerce</option>
+                                    <option value="manufacturing">Manufacturing</option>
+                                    <option value="technology">Technology</option>
+                                    <option value="telecom">Telecommunications</option>
+                                    <option value="education">Education</option>
+                                    <option value="government">Federal / Public Sector</option>
+                                    <option value="energy">Energy / Oil & Gas</option>
+                                    <option value="hospitality">Hospitality</option>
+                                    <option value="legal">Legal / Professional Services</option>
+                                    <option value="transportation">Transportation / Logistics</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3><i class="fas fa-network-wired"></i> Environment</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Number of Sites</label>
+                                <select id="numSites">
+                                    <option value="">-- Unknown --</option>
+                                    <option value="1-10">1-10</option>
+                                    <option value="11-50">11-50</option>
+                                    <option value="51-100">51-100</option>
+                                    <option value="101-500">101-500</option>
+                                    <option value="500+">500+</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Remote / Hybrid Users</label>
+                                <select id="remoteUsers">
+                                    <option value="">-- Unknown --</option>
+                                    <option value="1-100">1-100</option>
+                                    <option value="101-500">101-500</option>
+                                    <option value="501-2000">501-2,000</option>
+                                    <option value="2001-5000">2,001-5,000</option>
+                                    <option value="5000+">5,000+</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Cloud Environment</label>
+                                <div class="checkbox-group">
+                                    <label class="checkbox-label"><input type="checkbox" value="aws"> AWS</label>
+                                    <label class="checkbox-label"><input type="checkbox" value="azure"> Azure</label>
+                                    <label class="checkbox-label"><input type="checkbox" value="gcp"> GCP</label>
+                                    <label class="checkbox-label"><input type="checkbox" value="private"> Private Cloud</label>
+                                    <label class="checkbox-label"><input type="checkbox" value="hybrid"> Hybrid</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group full-width">
+                                <label>Primary Use Case Interest</label>
+                                <div class="checkbox-group">
+                                    <label class="checkbox-label"><input type="checkbox" name="usecase" value="sdwan"> SD-WAN</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="usecase" value="sase"> Unified SASE</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="usecase" value="vpn"> VPN Replacement</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="usecase" value="firewall"> Firewall Refresh</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="usecase" value="consolidation"> Product Consolidation</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="usecase" value="sovereign"> Sovereign SASE</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="usecase" value="ztna"> Zero Trust / ZTNA</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="usecase" value="sdlan"> LAN Modernization</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="usecase" value="ma"> Mergers & Acquisitions</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="usecase" value="iot"> IoT Security</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="usecase" value="genai"> GenAI Security</label>
+                                    <label class="checkbox-label"><input type="checkbox" name="usecase" value="unknown"> Not Sure Yet</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3><i class="fas fa-chess-knight"></i> Current Vendors (check all that apply)</h3>
+                        <div class="vendor-grid">
+                            <label class="vendor-card"><input type="checkbox" name="vendor" value="cisco"><span class="vendor-name">Cisco</span><span class="vendor-sub">Meraki / Viptela / Umbrella</span></label>
+                            <label class="vendor-card"><input type="checkbox" name="vendor" value="paloalto"><span class="vendor-name">Palo Alto</span><span class="vendor-sub">Prisma / PAN-OS</span></label>
+                            <label class="vendor-card"><input type="checkbox" name="vendor" value="fortinet"><span class="vendor-name">Fortinet</span><span class="vendor-sub">FortiGate / FortiSASE</span></label>
+                            <label class="vendor-card"><input type="checkbox" name="vendor" value="zscaler"><span class="vendor-name">Zscaler</span><span class="vendor-sub">ZIA / ZPA / ZDX</span></label>
+                            <label class="vendor-card"><input type="checkbox" name="vendor" value="netskope"><span class="vendor-name">Netskope</span><span class="vendor-sub">SSE / CASB</span></label>
+                            <label class="vendor-card"><input type="checkbox" name="vendor" value="cato"><span class="vendor-name">Cato Networks</span><span class="vendor-sub">Cato SASE Cloud</span></label>
+                            <label class="vendor-card"><input type="checkbox" name="vendor" value="legacy_vpn"><span class="vendor-name">Legacy VPN</span><span class="vendor-sub">AnyConnect / GlobalProtect</span></label>
+                            <label class="vendor-card"><input type="checkbox" name="vendor" value="mpls"><span class="vendor-name">MPLS Only</span><span class="vendor-sub">No SD-WAN yet</span></label>
+                            <label class="vendor-card"><input type="checkbox" name="vendor" value="unknown"><span class="vendor-name">Unknown</span><span class="vendor-sub">Will discover on call</span></label>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3><i class="fas fa-id-badge"></i> Who Are You Meeting?</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Title / Role</label>
+                                <select id="personaTitle">
+                                    <option value="">-- Select Role --</option>
+                                    <optgroup label="Leadership / Executives">
+                                        <option value="ciso">CISO</option>
+                                        <option value="cio">CIO / CTO</option>
+                                        <option value="vp_it">VP of IT / VP of Security</option>
+                                        <option value="dir_network">Director of Networking</option>
+                                        <option value="dir_security">Director of Security</option>
+                                        <option value="dir_infra">Director of Infrastructure</option>
+                                    </optgroup>
+                                    <optgroup label="Advanced / Management">
+                                        <option value="net_eng_mgr">Network Engineering Manager</option>
+                                        <option value="sec_mgr">Cybersecurity Manager</option>
+                                        <option value="cloud_sec_mgr">Cloud Security Manager</option>
+                                        <option value="sr_architect">Senior / Principal Architect</option>
+                                    </optgroup>
+                                    <optgroup label="Intermediate">
+                                        <option value="sr_net_eng">Senior Network Engineer</option>
+                                        <option value="solutions_arch">Solutions Architect</option>
+                                        <option value="sec_arch">Security Architect</option>
+                                        <option value="cloud_arch">Cloud Architect</option>
+                                        <option value="infra_arch">Infrastructure Architect</option>
+                                    </optgroup>
+                                    <optgroup label="Early Career / Technical">
+                                        <option value="net_eng">Network Engineer</option>
+                                        <option value="sec_eng">Security Engineer</option>
+                                        <option value="net_admin">Network / Security Analyst</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Department Focus</label>
+                                <select id="department">
+                                    <option value="">-- Select --</option>
+                                    <option value="networking">Networking</option>
+                                    <option value="security">Security</option>
+                                    <option value="infrastructure">Infrastructure / Cloud</option>
+                                    <option value="it_ops">IT Operations</option>
+                                    <option value="devops">DevOps / DevSecOps</option>
+                                    <option value="executive">Executive / Business</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="generate-btn">
+                        <i class="fas fa-magic"></i> Generate Discovery Plan
+                    </button>
+                </form>
+            </div>
+
+            <!-- Output Panel -->
+            <div class="output-panel" id="output-panel">
+                <div class="output-empty" id="output-empty">
+                    <div class="empty-icon"><i class="fas fa-compass"></i></div>
+                    <h3>Ready to Build Your Discovery Plan</h3>
+                    <p>Fill in the customer profile on the left and click "Generate Discovery Plan" to get your MEDDIC-mapped briefing with tailored questions, competitive intel, and talk tracks.</p>
+                    <div class="quick-tips">
+                        <h4>Quick Tips</h4>
+                        <ul>
+                            <li>Don't know everything? That's fine — leave fields blank</li>
+                            <li>The more you fill in, the more targeted the output</li>
+                            <li>Use "Live Call Mode" tab for mid-call quick lookups</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="output-content" id="output-content" style="display:none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== LIVE CALL MODE TAB ===================== -->
+    <div id="tab-live" class="tab-content">
+        <div class="live-layout">
+            <div class="live-search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="liveSearch" placeholder="Type a vendor, topic, or keyword (e.g., 'Zscaler ZTNA', 'firewall refresh', 'healthcare compliance')..." oninput="handleLiveSearch(this.value)">
+                <div class="search-hints">
+                    <span class="hint-chip" onclick="quickSearch('Zscaler')">Zscaler</span>
+                    <span class="hint-chip" onclick="quickSearch('Palo Alto')">Palo Alto</span>
+                    <span class="hint-chip" onclick="quickSearch('Cisco')">Cisco</span>
+                    <span class="hint-chip" onclick="quickSearch('Fortinet')">Fortinet</span>
+                    <span class="hint-chip" onclick="quickSearch('Cato')">Cato</span>
+                    <span class="hint-chip" onclick="quickSearch('Netskope')">Netskope</span>
+                    <span class="hint-chip" onclick="quickSearch('SD-WAN')">SD-WAN</span>
+                    <span class="hint-chip" onclick="quickSearch('SASE')">SASE</span>
+                    <span class="hint-chip" onclick="quickSearch('ZTNA')">ZTNA</span>
+                    <span class="hint-chip" onclick="quickSearch('firewall')">Firewall</span>
+                    <span class="hint-chip" onclick="quickSearch('consolidation')">Consolidation</span>
+                    <span class="hint-chip" onclick="quickSearch('sovereign')">Sovereign</span>
+                    <span class="hint-chip" onclick="quickSearch('VPN')">VPN</span>
+                </div>
+            </div>
+            <div class="live-results" id="liveResults">
+                <div class="live-empty">
+                    <i class="fas fa-bolt"></i>
+                    <h3>Quick Intel at Your Fingertips</h3>
+                    <p>Start typing or click a chip above to instantly pull up pain-point questions, objection handling, and competitive positioning.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== BATTLECARDS TAB ===================== -->
+    <div id="tab-battlecards" class="tab-content">
+        <div class="battlecards-layout">
+            <div class="bc-selector">
+                <h2>Select Competitor</h2>
+                <div class="bc-grid">
+                    <button class="bc-card active" onclick="showBattlecard('zscaler')">
+                        <div class="bc-icon">Z</div>
+                        <span>Zscaler</span>
+                    </button>
+                    <button class="bc-card" onclick="showBattlecard('paloalto')">
+                        <div class="bc-icon">PA</div>
+                        <span>Palo Alto</span>
+                    </button>
+                    <button class="bc-card" onclick="showBattlecard('cisco')">
+                        <div class="bc-icon">C</div>
+                        <span>Cisco</span>
+                    </button>
+                    <button class="bc-card" onclick="showBattlecard('fortinet')">
+                        <div class="bc-icon">F</div>
+                        <span>Fortinet</span>
+                    </button>
+                    <button class="bc-card" onclick="showBattlecard('cato')">
+                        <div class="bc-icon">CT</div>
+                        <span>Cato</span>
+                    </button>
+                    <button class="bc-card" onclick="showBattlecard('netskope')">
+                        <div class="bc-icon">N</div>
+                        <span>Netskope</span>
+                    </button>
+                </div>
+            </div>
+            <div class="bc-content" id="bcContent"></div>
+        </div>
+    </div>
+
+    <!-- ===================== MEDDIC GUIDE TAB ===================== -->
+    <div id="tab-meddic" class="tab-content">
+        <div class="meddic-layout">
+            <div class="meddic-header">
+                <h2>MEDDIC Framework for Versa Sales</h2>
+                <p>Use this framework to qualify every deal and ensure you're covering all angles during discovery.</p>
+            </div>
+            <div class="meddic-grid" id="meddicGrid"></div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
