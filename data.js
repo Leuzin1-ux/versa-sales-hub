@@ -50,7 +50,8 @@ const COMPETITORS = {
             "Zscaler is the market leader in SSE": "Zscaler built a strong SSE brand, but SASE requires SD-WAN + SSE unified. They had to acquire SD-WAN capabilities and still lack depth. Gartner's Critical Capabilities report flags their lack of advanced SD-WAN functionality. Versa delivers both natively in one OS — no integration tax.",
             "We already have Zscaler deployed": "Many customers run Zscaler for SSE alongside another SD-WAN vendor. That's two vendors, two contracts, two consoles, zero integration. Versa consolidates everything. We can even do a phased migration — start with SD-WAN and layer in SSE over time.",
             "Zscaler has more PoPs globally": "PoP count is a vanity metric. What matters is where inspection happens and latency to YOUR users. Versa optimizes path per-connection and can inspect at cloud edge, WAN edge, AND LAN edge. Zscaler can only inspect in the cloud.",
-            "Our security team trusts Zscaler": "We respect Zscaler's SSE. But ask your security team: who handles on-prem firewall? Who handles SD-WAN? Who handles LAN security? That's 3+ vendors Zscaler can't replace. Versa is one platform for all of it."
+            "Our security team trusts Zscaler": "We respect Zscaler's SSE. But ask your security team: who handles on-prem firewall? Who handles SD-WAN? Who handles LAN security? That's 3+ vendors Zscaler can't replace. Versa is one platform for all of it.",
+            "Zscaler has better DLP/CASB": "Zscaler's DLP and CASB are solid but they're bolt-on modules with separate licensing — DLP requires Advanced Plus tier, CASB requires separate API integration. Versa includes DLP and CASB natively in the unified SASE platform at no extra cost. Plus, Versa inspects traffic at both cloud and edge, so your DLP policies apply consistently whether users are on-site or remote — Zscaler can only enforce in the cloud."
         },
         securityStats: {
             versa: { effectiveness: "99.90%", rating: "Recommended", testName: "(NGFW)" },
@@ -116,7 +117,8 @@ const COMPETITORS = {
             "Palo Alto is the biggest name in security": "Brand recognition doesn't equal best fit. CyberRatings.org independently tested both — Versa scored 99.98% security effectiveness vs. Palo Alto's 79.24%. Plus, Palo Alto requires two consoles to manage SASE. Your team deserves a single pane of glass.",
             "We're standardized on PAN-OS": "We understand — PAN-OS is deeply embedded. But consider: your SD-WAN team is on Panorama, your cloud security team is on Prisma Access Management, and your LAN team is on a third vendor. That's three operational silos. Versa unifies all of that.",
             "Prisma Access is a strong SASE solution": "Prisma Access is SSE delivered separately from SD-WAN. Gartner specifically flagged Palo Alto as 'weaker in basic networking capability.' If you need true Unified SASE — networking + security in one platform — that's Versa's architecture.",
-            "We're already in a Palo Alto renewal": "Perfect timing. Before you renew, let us show you a side-by-side TCO comparison. Most customers find they're paying for 3-4 separate Palo Alto products when Versa consolidates it into one platform at lower cost."
+            "We're already in a Palo Alto renewal": "Perfect timing. Before you renew, let us show you a side-by-side TCO comparison. Most customers find they're paying for 3-4 separate Palo Alto products when Versa consolidates it into one platform at lower cost.",
+            "Palo Alto has better AI/ML threat detection (Cortex XSIAM)": "Cortex XSIAM is a SIEM/XDR product — it's not part of Prisma Access SASE. That's yet another separate product, separate console, separate license. Versa integrates AI/ML natively into the SASE platform: behavioral analytics (UEBA), anomaly detection, and AI-powered threat response — all within VOS. No separate product required. And when CyberRatings independently tested actual security effectiveness, Versa scored 99.98% vs. Palo Alto's 79.24%."
         },
         securityStats: {
             versa: { effectiveness: "99.98%", rating: "Recommended", testName: "(Enterprise FW)" },
@@ -185,7 +187,8 @@ const COMPETITORS = {
             "We're a Cisco shop — everything is Cisco": "We hear that a lot. But which Cisco? Viptela SD-WAN? Meraki SD-WAN? Umbrella? Duo? Secure Firewall? Each has a different console, different team, different contract. That's not unified — that's vendor sprawl under one logo. Versa is actually one platform.",
             "Cisco has the biggest install base": "Install base doesn't mean best solution. Cisco was excluded from both the Forrester Wave for SASE and Gartner's MQ for SSE in 2025. CyberRatings tested their SSE at 12.44% effectiveness. Your security posture matters more than a logo.",
             "We have an ELA with Cisco": "ELAs look cost-effective until you count the operational overhead of managing 4+ platforms, proprietary hardware requirements, and ISE licensing. We can show you a true TCO comparison that includes OpEx — most Cisco shops find Versa is 30-40% less.",
-            "Our network team only knows Cisco": "Versa's VOS runs full enterprise routing — BGP, OSPF, IS-IS, VRFs, multicast. Your network engineers will find it familiar. Plus, our single console is easier to learn than juggling Viptela + Meraki + Umbrella + ISE."
+            "Our network team only knows Cisco": "Versa's VOS runs full enterprise routing — BGP, OSPF, IS-IS, VRFs, multicast. Your network engineers will find it familiar. Plus, our single console is easier to learn than juggling Viptela + Meraki + Umbrella + ISE.",
+            "We get bundled pricing through our Cisco ELA": "ELA pricing bundles cost with complexity. You're still managing Viptela + Meraki + Umbrella + Duo + ISE — each with separate consoles, separate teams, and separate upgrade cycles. Factor in the operational overhead: Gartner Peer Insights users report Cisco 'lacks enterprise features and functionality.' Versa's unified platform eliminates that operational tax. Let us build a true TCO comparison including OpEx — most Cisco ELA shops find they're overpaying for underperformance."
         },
         securityStats: {
             versa: { effectiveness: "99.90%", testName: "(NGFW)", sse: "Leader", firewall: "99.43%", exploitEvasion: "100%", malwareBlock: "99.01%", falsePositive: "99.63%" },
@@ -256,7 +259,8 @@ const COMPETITORS = {
             "Fortinet has great TCO — it's the cheapest option": "Fortinet's sticker price looks good until you factor in: proprietary hardware refreshes, throughput degradation with full UTM, multiple appliances for HA, and operational overhead of their complex GUI. The real TCO includes people cost, and Versa's unified platform reduces that significantly.",
             "We're a FortiGate shop and our team knows it": "FortiGate is a firewall. When you layer on FortiSASE, FortiSwitch, FortiAP, FortiClient EMS, and FortiManager — that's 5+ products your team needs to learn. Versa is one platform with one console. The learning curve is actually simpler.",
             "Fortinet has the best NGFW performance": "Performance at what cost? Fortinet's throughput numbers rely on proprietary FortiASIC hardware, and they drop dramatically when you turn on full UTM. CyberRatings tested actual security effectiveness — Versa scored 99.98% vs. Fortinet's 79.24%. Plus, Versa runs on standard x86 hardware.",
-            "Fortinet has a bigger installed base for SD-WAN": "Market share doesn't equal capability. Gartner's Critical Capabilities for SASE 2025 shows Versa as the SD-WAN capability leader. Fortinet added SD-WAN to a firewall — Versa built SD-WAN as its core architecture."
+            "Fortinet has a bigger installed base for SD-WAN": "Market share doesn't equal capability. Gartner's Critical Capabilities for SASE 2025 shows Versa as the SD-WAN capability leader. Fortinet added SD-WAN to a firewall — Versa built SD-WAN as its core architecture.",
+            "Fortinet Security Fabric integration with FortiSIEM/FortiSOAR": "The 'Security Fabric' sounds unified, but it's actually 5+ separate products stitched together — FortiGate, FortiSASE, FortiSIEM, FortiSOAR, FortiSwitch, FortiAP, FortiClient EMS. Each has different release cycles, different UIs, and different licensing. Forrester rated Fortinet's support 1/5. Versa delivers true convergence in a single OS (VOS) — networking, security, analytics, and AI in one platform. No integration tax, no product sprawl disguised as a 'fabric.'"
         },
         securityStats: {
             versa: { effectiveness: "99.98%", testName: "(Enterprise FW)", exploitEvasion: "99.43%" },
@@ -326,7 +330,8 @@ const COMPETITORS = {
             "Cato is simple and easy to deploy": "Simple works for SMB. But you have enterprise requirements — complex routing, regulatory compliance, multi-tenant environments, on-prem security. Cato's simplicity is actually a limitation. Gartner specifically flagged their 'weaknesses with basic networking capabilities.'",
             "Cato's backbone provides great performance": "Cato forces ALL traffic through their backbone — that's not optimization, that's backhauling. Versa does per-connection path steering across any underlay. Your traffic takes the best path, not the only path.",
             "Cato is a unified platform too": "Cato is unified in the cloud only. They have zero on-prem security capability. No IPS, no content filtering at the edge. If your cloud connection drops, your security drops. Versa runs the full stack at every edge — cloud, WAN, and LAN.",
-            "We like Cato's per-user pricing": "Pricing models matter, but so does what you're getting. Cato's bandwidth-allocation licensing creates overprovisioning risk. Versa offers both bandwidth and consumption-based options. Let's compare actual cost for your specific user count and traffic patterns."
+            "We like Cato's per-user pricing": "Pricing models matter, but so does what you're getting. Cato's bandwidth-allocation licensing creates overprovisioning risk. Versa offers both bandwidth and consumption-based options. Let's compare actual cost for your specific user count and traffic patterns.",
+            "Cato's single-pass cloud is simpler to manage": "Cato's cloud-only approach is simpler because it does less. They have no on-prem IPS, no content filtering at the edge, no carrier-grade routing, and no sovereign deployment option. Gartner flagged 'weaknesses with basic networking capabilities' and 'limited support for data sovereignty laws.' Versa runs single-pass processing too — but at EVERY edge: cloud, WAN, and LAN. When your internet link goes down, Versa keeps security running locally. Cato doesn't."
         },
         securityStats: {
             versa: { effectiveness: "99.98%", testName: "(Enterprise FW)", rating: "Recommended" },
@@ -394,7 +399,8 @@ const COMPETITORS = {
             "Netskope has the best CASB": "Netskope started as CASB and it's still their strongest feature. But SASE requires much more — SD-WAN, NGFW, LAN, sovereign deployment. Netskope's SASE literally excludes NGFW. That's a major gap they can't fill without a third vendor.",
             "Our security team already uses Netskope": "If your security team likes Netskope for CASB/SWG, that's fine. But who handles your SD-WAN? Your NGFW? Your LAN security? Your on-prem compliance? That's 3-4 additional vendors. Versa handles ALL of that in one platform.",
             "Netskope is a leader in SSE": "They're positioned well in SSE, but they refused to participate in CyberRatings testing. Versa scored 99.98% security effectiveness in the same test. And SSE alone isn't SASE — you need integrated networking. Gartner says Netskope has 'less experience supporting SD-WAN offerings.'",
-            "We don't need SD-WAN yet": "You may not need it today, but your MPLS contracts will expire, your branches will grow, and you'll need WAN transformation. With Versa, you get SSE now AND enterprise SD-WAN when you're ready — same platform, same console, zero migration."
+            "We don't need SD-WAN yet": "You may not need it today, but your MPLS contracts will expire, your branches will grow, and you'll need WAN transformation. With Versa, you get SSE now AND enterprise SD-WAN when you're ready — same platform, same console, zero migration.",
+            "Netskope has the best inline DLP for SaaS": "Netskope's inline DLP for SaaS is strong — it's their origin. But DLP doesn't stop at SaaS. What about data exfiltration via email, USB, clipboard, or non-sanctioned apps? Versa's DLP covers ALL channels: web, cloud, SaaS, email, and endpoint (copy/paste, screenshot, USB blocking via SASE Client). Plus, Netskope's SASE excludes NGFW entirely — so your network traffic has no inline DLP at the firewall layer. Versa covers the full data protection surface."
         },
         securityStats: {
             versa: { effectiveness: "99.98%", testName: "(Enterprise FW)", rating: "Recommended" },
@@ -448,7 +454,7 @@ const INDUSTRIES = {
     healthcare: {
         name: "Healthcare / Pharma",
         icon: "fa-hospital",
-        compliance: ["HIPAA", "HITECH", "FDA 21 CFR Part 11", "GDPR"],
+        compliance: ["HIPAA", "HITECH", "HITRUST CSF", "FDA 21 CFR Part 11", "GDPR"],
         painPoints: [
             "HIPAA compliance across distributed clinical environments",
             "IoT/medical device security (MRI, infusion pumps, patient monitors)",
@@ -603,12 +609,12 @@ const INDUSTRIES = {
             "What does your remote learning infrastructure look like?"
         ],
         versaPitch: "Educational institutions choose Versa for unified campus security, FERPA-compliant segmentation, and CIPA content filtering — all from one platform. Our SD-LAN natively separates student, faculty, guest, and IoT traffic. Zero-touch provisioning makes multi-campus deployments simple even with limited IT staff.",
-        customerProof: ["University deployments", "K-12 districts"]
+        customerProof: ["Large university campus deployments", "K-12 school districts (E-Rate funded)", "Multi-campus institutions with 10K+ users"]
     },
     government: {
         name: "Federal / Public Sector",
         icon: "fa-landmark-flag",
-        compliance: ["FedRAMP", "FISMA", "NIST 800-53", "NIST 800-171", "ITAR", "CMMC", "IL4/IL5"],
+        compliance: ["FedRAMP", "StateRAMP", "FISMA", "NIST 800-53", "NIST 800-171", "ITAR", "CMMC", "IL4/IL5"],
         painPoints: [
             "FedRAMP authorization requirements",
             "Zero Trust Architecture mandates (EO 14028)",
@@ -684,7 +690,7 @@ const INDUSTRIES = {
             "What's your bandwidth management strategy during peak seasons?"
         ],
         versaPitch: "Hospitality brands choose Versa for rapid multi-property deployment, PCI-compliant POS segmentation, and IoT security for smart room technology. Our zero-touch provisioning brings new properties online in hours, and our SD-LAN natively segments guest Wi-Fi from operational networks.",
-        customerProof: ["Hospitality chains"]
+        customerProof: ["Major hotel chains with 500+ properties", "Versace (luxury hospitality)", "Global resort operators"]
     },
     transportation: {
         name: "Transportation / Logistics",
@@ -709,7 +715,7 @@ const INDUSTRIES = {
             "How quickly do you need to bring new distribution sites online?"
         ],
         versaPitch: "Transportation and logistics companies choose Versa for multi-site SD-WAN connectivity, IoT security for telematics and sensors, and rapid warehouse deployment. Our application-aware routing prioritizes supply chain applications, and our micro-segmentation protects OT systems at distribution centers.",
-        customerProof: ["Qatar Airways", "Transportation companies"]
+        customerProof: ["Qatar Airways", "Global logistics providers", "Fleet management enterprises with distributed warehouses"]
     },
     legal: {
         name: "Legal / Professional Services",
@@ -734,7 +740,7 @@ const INDUSTRIES = {
             "What does your M&A data room security look like?"
         ],
         versaPitch: "Law firms and professional services firms choose Versa for data protection, sovereign deployment options, and secure multi-office connectivity. Our DLP prevents sensitive document exfiltration, our ZTNA provides secure remote access to document management systems, and our Sovereign SASE addresses cross-border data residency requirements.",
-        customerProof: ["Professional services firms"]
+        customerProof: ["Global law firms with multi-office connectivity", "Professional services enterprises requiring data sovereignty", "Firms with strict attorney-client privilege requirements"]
     },
     other: {
         name: "General Enterprise",
@@ -1604,6 +1610,38 @@ const SEARCH_INDEX = {
     "logistics": { type: "industry", key: "transportation" },
     "legal": { type: "industry", key: "legal" },
     "law firm": { type: "industry", key: "legal" },
+    // Persona searches
+    "ciso": { type: "persona", key: "ciso" },
+    "chief information security officer": { type: "persona", key: "ciso" },
+    "cio": { type: "persona", key: "cio" },
+    "cto": { type: "persona", key: "cio" },
+    "chief information officer": { type: "persona", key: "cio" },
+    "vp it": { type: "persona", key: "vp_it" },
+    "vp security": { type: "persona", key: "vp_it" },
+    "vice president": { type: "persona", key: "vp_it" },
+    "director networking": { type: "persona", key: "dir_network" },
+    "network director": { type: "persona", key: "dir_network" },
+    "director security": { type: "persona", key: "dir_security" },
+    "security director": { type: "persona", key: "dir_security" },
+    "director infrastructure": { type: "persona", key: "dir_infra" },
+    "infra director": { type: "persona", key: "dir_infra" },
+    "network engineering manager": { type: "persona", key: "mgr_network" },
+    "network manager": { type: "persona", key: "mgr_network" },
+    "cybersecurity manager": { type: "persona", key: "mgr_security" },
+    "security manager": { type: "persona", key: "mgr_security" },
+    "cloud security manager": { type: "persona", key: "mgr_cloud" },
+    "cloud manager": { type: "persona", key: "mgr_cloud" },
+    "architect": { type: "persona", key: "sr_architect" },
+    "principal architect": { type: "persona", key: "sr_architect" },
+    "senior network engineer": { type: "persona", key: "sr_net_eng" },
+    "solutions architect": { type: "persona", key: "solutions_arch" },
+    "security architect": { type: "persona", key: "sec_architect" },
+    "cloud architect": { type: "persona", key: "cloud_architect" },
+    "infrastructure architect": { type: "persona", key: "infra_architect" },
+    "network engineer": { type: "persona", key: "net_eng" },
+    "security engineer": { type: "persona", key: "sec_eng" },
+    "network analyst": { type: "persona", key: "net_admin" },
+    "security analyst": { type: "persona", key: "net_admin" },
     // Security topic searches
     "casb": { type: "topic", title: "CASB — Cloud Access Security Broker", content: "Versa CASB provides inline and API-based visibility and control over SaaS applications. Unlike Netskope (CASB-origin), Versa integrates CASB natively within the unified SASE platform — no separate deployment or console. Covers shadow IT discovery, DLP for cloud apps, and SaaS activity monitoring." },
     "swg": { type: "topic", title: "SWG — Secure Web Gateway", content: "Versa SWG secures internet access for enterprise sites, home offices, and on-the-go users. Integrated with SD-WAN for optimized traffic routing — unlike standalone SWG solutions that add latency by backhauling traffic." },

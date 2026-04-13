@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Versa Sales Hub</title>
     <link rel="icon" href="versa-logo.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
@@ -36,10 +38,14 @@
                 <i class="fas fa-bullseye"></i>
                 <span>MEDDIC Guide</span>
             </button>
+            <button class="nav-tab" data-tab="postcall" onclick="switchTab('postcall')">
+                <i class="fas fa-paper-plane"></i>
+                <span>Post-Call</span>
+            </button>
         </div>
         <div class="nav-right">
             <span class="kbd-hint" title="Press Cmd/Ctrl+K for Quick Search"><kbd>&#8984;K</kbd> Search</span>
-            <span class="version-badge">v1.1</span>
+            <span class="version-badge">v2.0</span>
         </div>
     </nav>
 
@@ -56,6 +62,13 @@
                     </div>
                 </div>
                 <form id="prep-form" onsubmit="generatePrep(event)">
+                    <div class="profile-bar">
+                        <select id="savedProfiles" onchange="loadProfile(this.value)">
+                            <option value="">Load Saved Profile...</option>
+                        </select>
+                        <button type="button" class="profile-btn save" onclick="saveProfile()" title="Save current profile"><i class="fas fa-bookmark"></i></button>
+                        <button type="button" class="profile-btn delete" onclick="deleteProfile()" title="Delete selected profile"><i class="fas fa-trash-alt"></i></button>
+                    </div>
                     <div class="form-section">
                         <div class="section-label"><span class="section-label-dot"></span>Company Info</div>
                         <div class="form-row">
@@ -317,6 +330,87 @@
                 <p>The qualification framework for every Versa deal. Use it to ensure you're covering all angles during discovery.</p>
             </div>
             <div class="meddic-grid" id="meddicGrid"></div>
+        </div>
+    </div>
+
+    <!-- ===================== POST-CALL TAB ===================== -->
+    <div id="tab-postcall" class="tab-content">
+        <div class="postcall-layout">
+            <div class="postcall-sidebar">
+                <div class="panel-header">
+                    <div class="panel-header-icon"><i class="fas fa-paper-plane"></i></div>
+                    <div>
+                        <h2>Post-Call Tools</h2>
+                        <p>Generate follow-ups from your last prep.</p>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="section-label"><span class="section-label-dot"></span>Call Notes</div>
+                    <div class="form-group">
+                        <label>Key takeaways from the call</label>
+                        <textarea id="callNotes" rows="5" placeholder="e.g., Prospect is frustrated with 6 Cisco consoles. CISO wants consolidation by Q4. Budget approved. Evaluating Zscaler too."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Proposed Next Steps</label>
+                        <textarea id="nextSteps" rows="3" placeholder="e.g., Schedule technical deep-dive, Send ROI analysis, Provide CyberRatings report"></textarea>
+                    </div>
+                </div>
+
+                <button type="button" class="generate-btn" onclick="generatePostCall()">
+                    <span>Generate Follow-Up</span>
+                    <i class="fas fa-magic"></i>
+                </button>
+
+                <div class="postcall-divider"></div>
+
+                <div class="form-section">
+                    <div class="section-label"><span class="section-label-dot"></span>ROI Calculator</div>
+                    <div class="form-group">
+                        <label>Current # of Network/Security Vendors</label>
+                        <select id="roiVendors">
+                            <option value="2">2 vendors</option>
+                            <option value="3">3 vendors</option>
+                            <option value="4" selected>4 vendors</option>
+                            <option value="5">5 vendors</option>
+                            <option value="6">6+ vendors</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Annual Network/Security Spend ($)</label>
+                        <input type="text" id="roiSpend" placeholder="e.g., 500000" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+                    </div>
+                    <div class="form-group">
+                        <label>FTEs Managing Network/Security</label>
+                        <select id="roiFtes">
+                            <option value="1">1-2 FTEs</option>
+                            <option value="3" selected>3-5 FTEs</option>
+                            <option value="6">6-10 FTEs</option>
+                            <option value="11">10+ FTEs</option>
+                        </select>
+                    </div>
+                    <button type="button" class="generate-btn" onclick="calculateROI()" style="background:var(--versa-green);">
+                        <span>Calculate ROI</span>
+                        <i class="fas fa-calculator"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="postcall-output" id="postcall-output">
+                <div class="output-empty">
+                    <div class="empty-state">
+                        <div class="empty-icon-ring"><i class="fas fa-envelope-open-text"></i></div>
+                        <h3>Post-Call Workflow</h3>
+                        <p>After your call, enter key notes and generate a <strong>follow-up email</strong>, <strong>CRM notes</strong>, and <strong>next-steps agenda</strong>. Or use the <strong>ROI calculator</strong> to build a business case.</p>
+                        <div class="quick-tips">
+                            <div class="tip"><i class="fas fa-check-circle"></i> Works best after generating a Pre-Call Prep first</div>
+                            <div class="tip"><i class="fas fa-check-circle"></i> Copy any section directly into email or CRM</div>
+                            <div class="tip"><i class="fas fa-check-circle"></i> ROI estimates based on Dell/Adobe benchmarks</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="postcall-content" id="postcall-content" style="display:none;"></div>
+            </div>
         </div>
     </div>
 
