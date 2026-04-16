@@ -99,6 +99,56 @@
                     </div>
 
                     <div class="form-section">
+                        <div class="section-label"><span class="section-label-dot"></span>Meeting With</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Title / Role</label>
+                                <select id="personaTitle">
+                                    <option value="">Select Role</option>
+                                    <optgroup label="Leadership / Executives">
+                                        <option value="ciso">CISO</option>
+                                        <option value="cio">CIO / CTO</option>
+                                        <option value="vp_it">VP of IT / VP of Security</option>
+                                        <option value="dir_network">Director of Networking</option>
+                                        <option value="dir_security">Director of Security</option>
+                                        <option value="dir_infra">Director of Infrastructure</option>
+                                    </optgroup>
+                                    <optgroup label="Advanced / Management">
+                                        <option value="net_eng_mgr">Network Engineering Manager</option>
+                                        <option value="sec_mgr">Cybersecurity Manager</option>
+                                        <option value="cloud_sec_mgr">Cloud Security Manager</option>
+                                        <option value="sr_architect">Senior / Principal Architect</option>
+                                    </optgroup>
+                                    <optgroup label="Intermediate">
+                                        <option value="sr_net_eng">Senior Network Engineer</option>
+                                        <option value="solutions_arch">Solutions Architect</option>
+                                        <option value="sec_arch">Security Architect</option>
+                                        <option value="cloud_arch">Cloud Architect</option>
+                                        <option value="infra_arch">Infrastructure Architect</option>
+                                    </optgroup>
+                                    <optgroup label="Early Career / Technical">
+                                        <option value="net_eng">Network Engineer</option>
+                                        <option value="sec_eng">Security Engineer</option>
+                                        <option value="net_admin">Network / Security Analyst</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Department Focus</label>
+                                <select id="department">
+                                    <option value="">Select</option>
+                                    <option value="networking">Networking</option>
+                                    <option value="security">Security</option>
+                                    <option value="infrastructure">Infrastructure / Cloud</option>
+                                    <option value="it_ops">IT Operations</option>
+                                    <option value="devops">DevOps / DevSecOps</option>
+                                    <option value="executive">Executive / Business</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
                         <div class="section-label"><span class="section-label-dot"></span>Environment</div>
                         <div class="form-row">
                             <div class="form-group">
@@ -168,56 +218,6 @@
                         </div>
                     </div>
 
-                    <div class="form-section">
-                        <div class="section-label"><span class="section-label-dot"></span>Meeting With</div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Title / Role</label>
-                                <select id="personaTitle">
-                                    <option value="">Select Role</option>
-                                    <optgroup label="Leadership / Executives">
-                                        <option value="ciso">CISO</option>
-                                        <option value="cio">CIO / CTO</option>
-                                        <option value="vp_it">VP of IT / VP of Security</option>
-                                        <option value="dir_network">Director of Networking</option>
-                                        <option value="dir_security">Director of Security</option>
-                                        <option value="dir_infra">Director of Infrastructure</option>
-                                    </optgroup>
-                                    <optgroup label="Advanced / Management">
-                                        <option value="net_eng_mgr">Network Engineering Manager</option>
-                                        <option value="sec_mgr">Cybersecurity Manager</option>
-                                        <option value="cloud_sec_mgr">Cloud Security Manager</option>
-                                        <option value="sr_architect">Senior / Principal Architect</option>
-                                    </optgroup>
-                                    <optgroup label="Intermediate">
-                                        <option value="sr_net_eng">Senior Network Engineer</option>
-                                        <option value="solutions_arch">Solutions Architect</option>
-                                        <option value="sec_arch">Security Architect</option>
-                                        <option value="cloud_arch">Cloud Architect</option>
-                                        <option value="infra_arch">Infrastructure Architect</option>
-                                    </optgroup>
-                                    <optgroup label="Early Career / Technical">
-                                        <option value="net_eng">Network Engineer</option>
-                                        <option value="sec_eng">Security Engineer</option>
-                                        <option value="net_admin">Network / Security Analyst</option>
-                                    </optgroup>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Department Focus</label>
-                                <select id="department">
-                                    <option value="">Select</option>
-                                    <option value="networking">Networking</option>
-                                    <option value="security">Security</option>
-                                    <option value="infrastructure">Infrastructure / Cloud</option>
-                                    <option value="it_ops">IT Operations</option>
-                                    <option value="devops">DevOps / DevSecOps</option>
-                                    <option value="executive">Executive / Business</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
                     <button type="submit" class="generate-btn">
                         <span>Generate Discovery Plan</span>
                         <i class="fas fa-arrow-right"></i>
@@ -252,35 +252,59 @@
     <!-- ===================== LIVE CALL MODE TAB ===================== -->
     <div id="tab-live" class="tab-content">
         <div class="live-layout">
-            <div class="live-search-section">
-                <div class="live-search-container">
-                    <div class="search-input-wrap">
-                        <i class="fas fa-search search-icon"></i>
-                        <input type="text" id="liveSearch" placeholder="Search vendor, topic, or keyword..." oninput="handleLiveSearch(this.value)">
+            <div class="live-selector-panel">
+                <div class="live-selector-header">
+                    <span class="live-selector-title"><i class="fas fa-bolt"></i> Live Call Mode</span>
+                    <span class="live-selector-hint">Select one or more competitors and/or topics — results stack side by side</span>
+                </div>
+
+                <div class="live-selector-row">
+                    <div class="live-selector-label"><i class="fas fa-chess-knight"></i> Competitors</div>
+                    <div class="live-chips-group">
+                        <span class="live-chip live-chip-vendor" data-type="vendor" data-key="zscaler" onclick="toggleLiveChip(this)"><span class="chip-abbr">Z</span> Zscaler</span>
+                        <span class="live-chip live-chip-vendor" data-type="vendor" data-key="paloalto" onclick="toggleLiveChip(this)"><span class="chip-abbr">PA</span> Palo Alto</span>
+                        <span class="live-chip live-chip-vendor" data-type="vendor" data-key="cisco" onclick="toggleLiveChip(this)"><span class="chip-abbr">C</span> Cisco</span>
+                        <span class="live-chip live-chip-vendor" data-type="vendor" data-key="fortinet" onclick="toggleLiveChip(this)"><span class="chip-abbr">F</span> Fortinet</span>
+                        <span class="live-chip live-chip-vendor" data-type="vendor" data-key="cato" onclick="toggleLiveChip(this)"><span class="chip-abbr">CT</span> Cato</span>
+                        <span class="live-chip live-chip-vendor" data-type="vendor" data-key="netskope" onclick="toggleLiveChip(this)"><span class="chip-abbr">N</span> Netskope</span>
                     </div>
-                    <div class="search-hints">
-                        <span class="search-label">Quick access:</span>
-                        <span class="hint-chip" onclick="quickSearch('Zscaler')">Zscaler</span>
-                        <span class="hint-chip" onclick="quickSearch('Palo Alto')">Palo Alto</span>
-                        <span class="hint-chip" onclick="quickSearch('Cisco')">Cisco</span>
-                        <span class="hint-chip" onclick="quickSearch('Fortinet')">Fortinet</span>
-                        <span class="hint-chip" onclick="quickSearch('Cato')">Cato</span>
-                        <span class="hint-chip" onclick="quickSearch('Netskope')">Netskope</span>
-                        <span class="hint-chip hint-chip-topic" onclick="quickSearch('SD-WAN')">SD-WAN</span>
-                        <span class="hint-chip hint-chip-topic" onclick="quickSearch('SASE')">SASE</span>
-                        <span class="hint-chip hint-chip-topic" onclick="quickSearch('ZTNA')">ZTNA</span>
-                        <span class="hint-chip hint-chip-topic" onclick="quickSearch('firewall')">Firewall</span>
-                        <span class="hint-chip hint-chip-topic" onclick="quickSearch('consolidation')">Consolidation</span>
-                        <span class="hint-chip hint-chip-topic" onclick="quickSearch('sovereign')">Sovereign</span>
-                        <span class="hint-chip hint-chip-topic" onclick="quickSearch('VPN')">VPN</span>
+                </div>
+
+                <div class="live-selector-row">
+                    <div class="live-selector-label"><i class="fas fa-tag"></i> Topics / Use Cases</div>
+                    <div class="live-chips-group">
+                        <span class="live-chip live-chip-topic" data-type="usecase" data-key="sdwan" onclick="toggleLiveChip(this)">SD-WAN</span>
+                        <span class="live-chip live-chip-topic" data-type="usecase" data-key="sase" onclick="toggleLiveChip(this)">SASE</span>
+                        <span class="live-chip live-chip-topic" data-type="usecase" data-key="ztna" onclick="toggleLiveChip(this)">Zero Trust</span>
+                        <span class="live-chip live-chip-topic" data-type="usecase" data-key="firewall" onclick="toggleLiveChip(this)">Firewall</span>
+                        <span class="live-chip live-chip-topic" data-type="usecase" data-key="vpn" onclick="toggleLiveChip(this)">VPN Replace</span>
+                        <span class="live-chip live-chip-topic" data-type="usecase" data-key="consolidation" onclick="toggleLiveChip(this)">Consolidation</span>
+                        <span class="live-chip live-chip-topic" data-type="usecase" data-key="sovereign" onclick="toggleLiveChip(this)">Sovereign</span>
+                        <span class="live-chip live-chip-topic" data-type="topic" data-key="casb" onclick="toggleLiveChip(this)">CASB</span>
+                        <span class="live-chip live-chip-topic" data-type="topic" data-key="dlp" onclick="toggleLiveChip(this)">DLP</span>
+                        <span class="live-chip live-chip-topic" data-type="topic" data-key="roi" onclick="toggleLiveChip(this)">ROI</span>
+                    </div>
+                </div>
+
+                <div class="live-selector-row live-search-row">
+                    <div class="live-selector-label"><i class="fas fa-search"></i> Keyword Search</div>
+                    <div class="live-search-input-wrap">
+                        <input type="text" id="liveSearch" placeholder="Type any keyword, persona, or topic..." oninput="handleLiveSearch(this.value)">
+                        <button class="live-clear-btn" onclick="clearLiveSelections()" title="Clear all selections"><i class="fas fa-times"></i> Clear</button>
                     </div>
                 </div>
             </div>
+
             <div class="live-results" id="liveResults">
                 <div class="live-empty">
                     <div class="empty-icon-ring"><i class="fas fa-bolt"></i></div>
-                    <h3>Quick Intel at Your Fingertips</h3>
-                    <p>Start typing or click a chip above to instantly pull up pain-point questions, objection handling, and competitive positioning.</p>
+                    <h3>Select a Competitor or Topic Above</h3>
+                    <p>Click one or more chips to instantly load competitive intel, objection handling, feature comparisons, and discovery questions. Combine a competitor + topic for targeted context.</p>
+                    <div class="live-empty-tips">
+                        <div class="live-empty-tip"><i class="fas fa-chess-knight"></i> Click <strong>Cisco</strong> to see how to beat them mid-call</div>
+                        <div class="live-empty-tip"><i class="fas fa-layer-group"></i> Click <strong>Cisco + SASE</strong> to combine competitive + use case intel</div>
+                        <div class="live-empty-tip"><i class="fas fa-search"></i> Use keyword search for personas, compliance, or any topic</div>
+                    </div>
                 </div>
             </div>
         </div>

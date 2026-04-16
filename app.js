@@ -434,40 +434,98 @@ function toggleAllSections(expand) {
 // ===================== LIVE CALL MODE =====================
 let searchTimeout;
 
+// Active selections state
+const activeLiveSelections = { vendor: new Set(), usecase: new Set(), topic: new Set() };
+
+function toggleLiveChip(el) {
+    const type = el.dataset.type;
+    const key = el.dataset.key;
+    if (activeLiveSelections[type] && activeLiveSelections[type].has(key)) {
+        activeLiveSelections[type].delete(key);
+        el.classList.remove('active');
+    } else {
+        if (!activeLiveSelections[type]) activeLiveSelections[type] = new Set();
+        activeLiveSelections[type].add(key);
+        el.classList.add('active');
+    }
+    document.getElementById('liveSearch').value = '';
+    renderLiveSelections();
+}
+
+function clearLiveSelections() {
+    activeLiveSelections.vendor.clear();
+    activeLiveSelections.usecase.clear();
+    activeLiveSelections.topic = new Set();
+    document.querySelectorAll('.live-chip').forEach(c => c.classList.remove('active'));
+    document.getElementById('liveSearch').value = '';
+    renderLiveSelections();
+}
+
+function renderLiveSelections() {
+    const results = document.getElementById('liveResults');
+    const total = activeLiveSelections.vendor.size + activeLiveSelections.usecase.size + (activeLiveSelections.topic ? activeLiveSelections.topic.size : 0);
+    if (total === 0) {
+        results.innerHTML = `<div class="live-empty">
+            <div class="empty-icon-ring"><i class="fas fa-bolt"></i></div>
+            <h3>Select a Competitor or Topic Above</h3>
+            <p>Click one or more chips to instantly load competitive intel, objection handling, feature comparisons, and discovery questions. Combine a competitor + topic for targeted context.</p>
+            <div class="live-empty-tips">
+                <div class="live-empty-tip"><i class="fas fa-chess-knight"></i> Click <strong>Cisco</strong> to see how to beat them mid-call</div>
+                <div class="live-empty-tip"><i class="fas fa-layer-group"></i> Click <strong>Cisco + SASE</strong> to combine competitive + use case intel</div>
+                <div class="live-empty-tip"><i class="fas fa-search"></i> Use keyword search for personas, compliance, or any topic</div>
+            </div>
+        </div>`;
+        return;
+    }
+
+    let html = '';
+    activeLiveSelections.vendor.forEach(key => { html += renderVendorLiveResult(key); });
+    activeLiveSelections.usecase.forEach(key => { html += renderUseCaseLiveResult(key); });
+    if (activeLiveSelections.topic) {
+        activeLiveSelections.topic.forEach(key => {
+            const entry = SEARCH_INDEX[key];
+            if (entry) html += renderTopicLiveResult(entry);
+        });
+    }
+    results.innerHTML = html || '<div class="live-empty"><h3>No results found</h3></div>';
+}
+
 function handleLiveSearch(query) {
     clearTimeout(searchTimeout);
+    // Clear chip selections when user types
+    if (query.length > 0) {
+        activeLiveSelections.vendor.clear();
+        activeLiveSelections.usecase.clear();
+        activeLiveSelections.topic = new Set();
+        document.querySelectorAll('.live-chip').forEach(c => c.classList.remove('active'));
+    }
     searchTimeout = setTimeout(() => performSearch(query), 200);
 }
 
 function quickSearch(term) {
     document.getElementById('liveSearch').value = term;
+    clearLiveSelections();
     performSearch(term);
 }
 
 function performSearch(query) {
     const results = document.getElementById('liveResults');
     if (!query || query.length < 2) {
-        results.innerHTML = `<div class="live-empty">
-            <div class="empty-icon-ring"><i class="fas fa-bolt"></i></div>
-            <h3>Quick Intel at Your Fingertips</h3>
-            <p>Start typing or click a chip above to instantly pull up pain-point questions, objection handling, and competitive positioning.</p>
-        </div>`;
+        renderLiveSelections();
         return;
     }
 
     const q = query.toLowerCase().trim();
     let html = '';
     let found = false;
-    const rendered = new Set(); // Prevent duplicate results
+    const rendered = new Set();
 
-    // Search through the index — show ALL matches, not just the first
     for (const [key, entry] of Object.entries(SEARCH_INDEX)) {
         if (q.includes(key) || key.includes(q)) {
             const entryId = entry.type + '-' + (entry.key || entry.title);
             if (rendered.has(entryId)) continue;
             rendered.add(entryId);
             found = true;
-
             if (entry.type === 'vendor') {
                 html += renderVendorLiveResult(entry.key);
             } else if (entry.type === 'usecase') {
@@ -482,10 +540,7 @@ function performSearch(query) {
         }
     }
 
-    if (!found) {
-        // Fuzzy search across all competitor weaknesses and questions
-        html += fuzzySearch(q);
-    }
+    if (!found) html += fuzzySearch(q);
 
     const safeQuery = escapeHtml(query);
     results.innerHTML = html || `<div class="live-empty">
@@ -499,62 +554,75 @@ function renderVendorLiveResult(vendorKey) {
     const comp = COMPETITORS[vendorKey];
     if (!comp) return '';
 
-    let html = '';
+    // Build section nav IDs
+    const pfx = vendorKey;
+    let html = `<div class="live-result-group">`;
+    html += `<div class="live-result-header">
+        <h3><i class="fas fa-chess-knight"></i> vs. ${comp.name}</h3>
+        <div class="live-section-nav">
+            <a href="#${pfx}-fc">Feature Comparison</a>
+            <a href="#${pfx}-obj">Objections</a>
+            <a href="#${pfx}-weak">Weaknesses</a>
+            <a href="#${pfx}-q">Kill Questions</a>
+            <a href="#${pfx}-analyst">Analyst Quotes</a>
+        </div>
+    </div>`;
 
-    // Quick Stats
-    html += `<div class="live-result-group"><h3><i class="fas fa-shield-halved"></i> ${comp.name} — Quick Reference</h3>`;
-    html += `<div class="live-card"><h4>One-Line Summary</h4><p>${comp.summary}</p></div>`;
-
+    // 1. Summary + Security Stats (quick context bar)
+    html += `<div class="live-card live-summary-card">
+        <div class="live-summary-text">${comp.summary}</div>`;
     if (comp.securityStats) {
-        html += `<div class="live-card"><h4>Security Effectiveness Comparison</h4>`;
-        html += `<div class="flex-wrap-gap">`;
-        html += `<span class="stat-box"><span class="stat-value">${comp.securityStats.versa.effectiveness}</span> Versa ${comp.securityStats.versa.testName || ''}</span>`;
-        html += `<span class="stat-box"><span class="stat-vs">${comp.securityStats.competitor.effectiveness}</span> ${comp.name}</span>`;
-        html += `</div></div>`;
+        const compEff = comp.securityStats.competitor.effectiveness;
+        const versaEff = comp.securityStats.versa.effectiveness;
+        const compEffHtml = (compEff === 'Not independently tested' || compEff === 'Declined testing')
+            ? `<span style="color:var(--text-muted);font-style:italic;font-size:12px;">${compEff}</span>`
+            : `<span class="stat-vs">${compEff}</span>`;
+        html += `<div class="live-stats-row flex-wrap-gap" style="margin-top:8px;">
+            <span class="stat-box"><span class="stat-value">${versaEff}</span> Versa ${comp.securityStats.versa.testName || ''}</span>
+            <span class="stat-box">${compEffHtml} ${comp.name}</span>
+        </div>`;
     }
     html += `</div>`;
 
-    // Kill Questions — with copy buttons
-    html += `<div class="live-result-group"><h3><i class="fas fa-crosshairs"></i> Kill Questions — Ask These NOW</h3>`;
-    comp.killQuestions.forEach(q => {
-        html += withCopy(`<div class="live-card">${q}</div>`);
-    });
-    html += `</div>`;
-
-    // Top Weaknesses
-    html += `<div class="live-result-group"><h3><i class="fas fa-bullseye"></i> Key Weaknesses</h3>`;
-    html += `<div class="live-card"><ul>`;
-    comp.weaknesses.slice(0, 7).forEach(w => html += `<li>${w}</li>`);
-    html += `</ul></div></div>`;
-
-    // Objection Handling — with copy buttons
-    html += `<div class="live-result-group"><h3><i class="fas fa-shield"></i> Objection Handling</h3>`;
-    Object.entries(comp.objectionHandling).forEach(([objection, response]) => {
-        html += withCopy(`<div class="live-card">
-            <h4><span class="tag tag-red">OBJECTION</span> "${objection}"</h4>
-            <p><span class="tag tag-green">RESPONSE</span> ${response}</p>
-        </div>`);
-    });
-    html += `</div>`;
-
-    // Analyst Quotes
-    if (comp.analystQuotes && comp.analystQuotes.length > 0) {
-        html += `<div class="live-result-group"><h3><i class="fas fa-quote-left"></i> Analyst Ammunition</h3>`;
-        comp.analystQuotes.forEach(aq => {
-            html += withCopy(`<div class="live-card"><em>"${aq.quote}"</em><br><small class="analyst-source">— ${aq.source}</small></div>`);
-        });
-        html += `</div>`;
-    }
-
-    // Feature Comparison
-    html += `<div class="live-result-group"><h3><i class="fas fa-table"></i> Feature Comparison</h3>`;
+    // 2. Feature Comparison (most useful at-a-glance)
+    html += `<div id="${pfx}-fc" class="live-section-anchor"><h4 class="live-section-title"><i class="fas fa-table"></i> Feature Comparison</h4></div>`;
     html += `<div class="live-card"><table class="bc-comparison-table"><tr><th>Capability</th><th>Versa</th><th>${comp.name}</th></tr>`;
     Object.entries(comp.categories).forEach(([cat, data]) => {
         const catName = cat === 'sdwan' ? 'SD-WAN' : cat === 'sse' ? 'SSE' : cat === 'ngfw' ? 'NGFW' : cat === 'sdlan' ? 'SD-LAN' : cat === 'deployment' ? 'Deployment' : 'Management';
-        html += `<tr><td>${catName}</td><td>${data.versa}</td><td>${data.competitor}</td></tr>`;
+        html += `<tr><td><strong>${catName}</strong></td><td>${data.versa}</td><td>${data.competitor}</td></tr>`;
     });
-    html += `</table></div></div>`;
+    html += `</table></div>`;
 
+    // 3. Objection Handling
+    html += `<div id="${pfx}-obj" class="live-section-anchor"><h4 class="live-section-title"><i class="fas fa-shield"></i> Objection Handling</h4></div>`;
+    Object.entries(comp.objectionHandling).forEach(([objection, response]) => {
+        html += withCopy(`<div class="live-card">
+            <div class="objection-label"><span class="tag tag-red">THEY SAY</span> <em>"${objection}"</em></div>
+            <div class="response-label"><span class="tag tag-green">YOU SAY</span> ${response}</div>
+        </div>`);
+    });
+
+    // 4. Key Weaknesses
+    html += `<div id="${pfx}-weak" class="live-section-anchor"><h4 class="live-section-title"><i class="fas fa-bullseye"></i> Key Weaknesses to Exploit</h4></div>`;
+    html += `<div class="live-card"><ul>`;
+    comp.weaknesses.slice(0, 7).forEach(w => html += `<li>${w}</li>`);
+    html += `</ul></div>`;
+
+    // 5. Kill Questions
+    html += `<div id="${pfx}-q" class="live-section-anchor"><h4 class="live-section-title"><i class="fas fa-crosshairs"></i> Kill Questions — Ask These Now</h4></div>`;
+    comp.killQuestions.forEach(q => {
+        html += withCopy(`<div class="live-card">${q}</div>`);
+    });
+
+    // 6. Analyst Quotes
+    if (comp.analystQuotes && comp.analystQuotes.length > 0) {
+        html += `<div id="${pfx}-analyst" class="live-section-anchor"><h4 class="live-section-title"><i class="fas fa-quote-left"></i> Analyst Ammunition</h4></div>`;
+        comp.analystQuotes.forEach(aq => {
+            html += withCopy(`<div class="live-card"><em>"${aq.quote}"</em><br><small class="analyst-source">— ${aq.source}</small></div>`);
+        });
+    }
+
+    html += `</div>`;
     return html;
 }
 
@@ -562,15 +630,19 @@ function renderUseCaseLiveResult(ucKey) {
     const uc = USE_CASES[ucKey];
     if (!uc) return '';
 
-    let html = `<div class="live-result-group"><h3><i class="fas fa-crosshairs"></i> ${uc.name} — ${uc.description}</h3>`;
+    let html = `<div class="live-result-group">`;
+    html += `<div class="live-result-header"><h3><i class="fas fa-crosshairs"></i> ${uc.name}</h3></div>`;
+    html += `<div class="live-card live-summary-card">${uc.description}</div>`;
 
-    html += `<div class="live-card"><h4>Discovery Questions</h4><ul>`;
-    uc.discoveryQuestions.forEach(q => html += `<li>${q}</li>`);
-    html += `</ul></div>`;
-
-    html += `<div class="live-card"><h4>Versa Value Points</h4><ul>`;
+    html += `<h4 class="live-section-title"><i class="fas fa-gem"></i> Versa Value Points</h4>`;
+    html += `<div class="live-card"><ul>`;
     uc.versaValue.forEach(v => html += `<li>${v}</li>`);
     html += `</ul></div>`;
+
+    html += `<h4 class="live-section-title"><i class="fas fa-question-circle"></i> Discovery Questions</h4>`;
+    uc.discoveryQuestions.forEach(q => {
+        html += withCopy(`<div class="live-card">${q}</div>`);
+    });
 
     html += `</div>`;
     return html;
@@ -580,29 +652,32 @@ function renderIndustryLiveResult(indKey) {
     const ind = INDUSTRIES[indKey];
     if (!ind) return '';
 
-    let html = `<div class="live-result-group"><h3><i class="fas ${ind.icon}"></i> ${ind.name}</h3>`;
+    let html = `<div class="live-result-group">`;
+    html += `<div class="live-result-header"><h3><i class="fas ${ind.icon}"></i> ${ind.name}</h3></div>`;
 
-    html += `<div class="live-card"><h4>Compliance Requirements</h4>`;
-    html += `<div class="flex-wrap-gap">`;
+    html += `<h4 class="live-section-title"><i class="fas fa-shield-halved"></i> Compliance Requirements</h4>`;
+    html += `<div class="live-card"><div class="flex-wrap-gap">`;
     ind.compliance.forEach(c => html += `<span class="stat-box">${c}</span>`);
     html += `</div></div>`;
 
-    html += `<div class="live-card"><h4>Industry Pain Points</h4><ul>`;
+    html += `<h4 class="live-section-title"><i class="fas fa-fire"></i> Industry Pain Points</h4>`;
+    html += `<div class="live-card"><ul>`;
     ind.painPoints.forEach(p => html += `<li>${p}</li>`);
     html += `</ul></div>`;
 
-    html += `<div class="live-card"><h4>Industry-Specific Questions</h4><ul>`;
+    html += `<h4 class="live-section-title"><i class="fas fa-question-circle"></i> Discovery Questions</h4>`;
+    html += `<div class="live-card"><ul>`;
     ind.discoveryQuestions.forEach(q => html += `<li>${q}</li>`);
     html += `</ul></div>`;
 
-    html += withCopy(`<div class="live-card"><h4>Versa Pitch</h4><p>${ind.versaPitch}</p></div>`);
-
+    html += withCopy(`<div class="live-card"><h4>Versa Pitch for ${ind.name}</h4><p>${ind.versaPitch}</p></div>`);
     html += `</div>`;
     return html;
 }
 
 function renderTopicLiveResult(entry) {
-    let html = `<div class="live-result-group"><h3><i class="fas fa-info-circle"></i> ${entry.title}</h3>`;
+    let html = `<div class="live-result-group">`;
+    html += `<div class="live-result-header"><h3><i class="fas fa-info-circle"></i> ${entry.title}</h3></div>`;
     html += withCopy(`<div class="live-card"><p style="white-space:pre-line;">${entry.content}</p></div>`);
     html += `</div>`;
     return html;
@@ -611,14 +686,18 @@ function renderTopicLiveResult(entry) {
 function renderPersonaLiveResult(key) {
     const p = PERSONAS[key];
     if (!p) return '';
-    let html = `<div class="live-result-group"><h3><i class="fas fa-user-tie"></i> Persona: ${p.title}</h3>`;
-    html += withCopy(`<div class="live-card">
-        <p><strong>Level:</strong> ${p.level.charAt(0).toUpperCase() + p.level.slice(1)} | <strong>Focus:</strong> ${p.focus.charAt(0).toUpperCase() + p.focus.slice(1)}</p>
-        <p><strong>What they care about:</strong> ${p.cares.join(', ')}</p>
-        <p><strong>Talk Track:</strong> ${p.talkTrack}</p>
-        <p><strong>Discovery Questions:</strong></p>
-        <ul>${p.questions.map(q => `<li>${q}</li>`).join('')}</ul>
-    </div>`);
+    let html = `<div class="live-result-group">`;
+    html += `<div class="live-result-header"><h3><i class="fas fa-user-tie"></i> Persona: ${p.title}</h3></div>`;
+    html += `<div class="live-card live-summary-card">
+        <strong>${p.level.charAt(0).toUpperCase() + p.level.slice(1)} · ${p.focus.charAt(0).toUpperCase() + p.focus.slice(1)} Focus</strong><br>
+        <span style="color:var(--text-muted);">Cares about: ${p.cares.join(' · ')}</span>
+    </div>`;
+    html += `<h4 class="live-section-title"><i class="fas fa-comment-dots"></i> Talk Track</h4>`;
+    html += withCopy(`<div class="live-card">${p.talkTrack}</div>`);
+    html += `<h4 class="live-section-title"><i class="fas fa-question-circle"></i> Discovery Questions</h4>`;
+    p.questions.forEach(q => {
+        html += withCopy(`<div class="live-card">${q}</div>`);
+    });
     html += `</div>`;
     return html;
 }
@@ -627,7 +706,6 @@ function fuzzySearch(query) {
     const words = query.split(/\s+/);
     let results = [];
 
-    // Search competitor weaknesses
     Object.entries(COMPETITORS).forEach(([key, comp]) => {
         comp.weaknesses.forEach(w => {
             if (words.some(word => w.toLowerCase().includes(word))) {
@@ -639,7 +717,6 @@ function fuzzySearch(query) {
                 results.push({ type: 'question', vendor: comp.name, text: q });
             }
         });
-        // Also search objection handling
         Object.entries(comp.objectionHandling).forEach(([obj, resp]) => {
             if (words.some(word => obj.toLowerCase().includes(word) || resp.toLowerCase().includes(word))) {
                 results.push({ type: 'objection', vendor: comp.name, objection: obj, response: resp });
@@ -647,8 +724,7 @@ function fuzzySearch(query) {
         });
     });
 
-    // Search use case questions
-    Object.entries(USE_CASES).forEach(([key, uc]) => {
+    Object.values(USE_CASES).forEach(uc => {
         uc.discoveryQuestions.forEach(q => {
             if (words.some(word => q.toLowerCase().includes(word))) {
                 results.push({ type: 'discovery', usecase: uc.name, text: q });
@@ -656,31 +732,20 @@ function fuzzySearch(query) {
         });
     });
 
-    // Search Versa objections
-    if (typeof VERSA_OBJECTIONS !== 'undefined') {
-        Object.entries(VERSA_OBJECTIONS).forEach(([obj, resp]) => {
-            if (words.some(word => obj.toLowerCase().includes(word) || resp.toLowerCase().includes(word))) {
-                results.push({ type: 'versa-objection', objection: obj, response: resp });
-            }
-        });
-    }
-
     if (results.length === 0) return '';
 
-    const safeQuery = escapeHtml(query);
-    let html = `<div class="live-result-group"><h3><i class="fas fa-search"></i> Search Results for "${safeQuery}"</h3>`;
-    results.slice(0, 20).forEach(r => {
-        if (r.type === 'weakness') {
-            html += `<div class="live-card"><span class="tag tag-red">${r.vendor} Weakness</span> ${r.text}</div>`;
-        } else if (r.type === 'question') {
-            html += withCopy(`<div class="live-card"><span class="tag tag-blue">${r.vendor} Kill Question</span> ${r.text}</div>`);
-        } else if (r.type === 'objection' || r.type === 'versa-objection') {
+    let html = `<div class="live-result-group"><div class="live-result-header"><h3><i class="fas fa-search"></i> Search Results</h3></div>`;
+    results.slice(0, 12).forEach(r => {
+        if (r.type === 'objection') {
             html += withCopy(`<div class="live-card">
-                <h4><span class="tag tag-red">OBJECTION</span> "${r.objection}"</h4>
-                <p><span class="tag tag-green">RESPONSE</span> ${r.response}</p>
+                <div class="objection-label"><span class="tag tag-red">THEY SAY</span> <em>"${r.objection}"</em> <small style="color:var(--text-muted)">— vs. ${r.vendor}</small></div>
+                <div class="response-label"><span class="tag tag-green">YOU SAY</span> ${r.response}</div>
             </div>`);
-        } else {
-            html += `<div class="live-card"><span class="tag tag-green">${r.usecase}</span> ${r.text}</div>`;
+        } else if (r.type === 'weakness') {
+            html += `<div class="live-card"><span class="tag tag-red">${r.vendor}</span> ${r.text}</div>`;
+        } else if (r.type === 'question' || r.type === 'discovery') {
+            const label = r.vendor || r.usecase;
+            html += withCopy(`<div class="live-card"><span class="tag tag-blue">${label}</span> ${r.text}</div>`);
         }
     });
     html += `</div>`;
